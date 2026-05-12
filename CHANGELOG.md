@@ -4,13 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-05-12
+
 ### New Features
 
+- **Viewer Footer State Machine**: Reshaped the spec-viewer footer to match the actual workflow state. Noisy controls hide while a step is in flight; the forward button dynamically labels itself per workflow step (Plan / Tasks / Implement / Complete) so the next action is self-describing. Adds a new `implemented` status as the final approval gate before `completed`. Storybook now covers the full lifecycle plus Refine variants. `docs/viewer-states.md` is the new source of truth for footer matrix and step-tab visuals (#157).
+- **Per-Spec Timeline Panel**: A Timeline toggle in the spec-viewer nav bar swaps the markdown pane for a chronological view of every transition in `.spec-context.json`. Entries are grouped by step (oldest-first) with substep, actor badge (`extension` / `cli` / `sdd` / `ai` / `user`), and relative timestamps; absolute ISO is in the tooltip. Updates live when external `/sdd:*` skills append rows — piggybacks on the existing watcher, no new polling (#152, closes #110).
 - **Beta Features settings section**: Split extension settings into two groups in VS Code's Settings UI — the main "SpecKit Companion" group and a new "SpecKit Companion: Beta Features" group. The Activity panel toggle (`speckit.viewer.activityPanel`, values `off` / `beta` / `on`) now lives in the Beta group so users can find and change it instead of relying on its undeclared default.
 
 ### Bug Fixes
 
-- **Refine No Longer Wipes plan.md**: The Refine button used to dispatch the per-step slash command (e.g. `/speckit.plan`), whose first action copies the plan template over the existing file. Refinement now sends a direct-edit prompt that names the target file and forbids running setup scripts or regenerating from a template, applied uniformly to spec / plan / tasks (#153).
+- **Refine No Longer Wipes plan.md**: The Refine button used to dispatch the per-step slash command (e.g. `/speckit.plan`), whose first action copies the plan template over the existing file. Refinement now sends a direct-edit prompt that names the target file and forbids running setup scripts or regenerating from a template, applied uniformly to spec / plan / tasks (#155).
+
+### Documentation
+
+- **Contributing Guide + PR Template**: Fleshed out the contributing guide with concrete development, testing, and PR-flow guidance; new pull request template ensures every PR includes a summary, test plan, and screenshot checklist where applicable (#151).
 
 ## [0.15.0] - 2026-04-27
 
