@@ -2,14 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.17.0] - 2026-05-21
 
 ### New Features
 
+- **Inline comment composer is now a single GitHub-style card**: The line composer reads as one cohesive bordered card — a context header (what you're commenting on), the comment textarea, and a single footer row — instead of a textarea with a secondary action floating above it. The secondary line action (Remove Line / Remove Story / Remove Section / Remove Scenario / Toggle + Remove Task) sits left-aligned in the footer, with Cancel / Add Comment right-aligned. Acceptance-scenario rows show the scenario context in the same header. Visual restructure only — anchoring, submission, scratchpad persistence, keyboard shortcuts, auto-focus, and every action's outcome are unchanged (#162).
 - **Inline review comments now persist to a per-document scratchpad**: When you submit a batch of inline comments via the source-tab **Refine** button, the AI gets the direct-edit prompt as before *and* the same batch is appended to a matching `<doc>-extra.md` history file (`spec-extra.md`, `plan-extra.md`, `tasks-extra.md`). Each entry records the exact source line, the nearest preceding heading, and the full source block (paragraph or list item, walked from the actual source markdown) so the trail stays meaningful even after the source file is edited and line numbers shift. Entries render as a labeled `## Refinement batch · TIMESTAMP` → `### Line N · Section` → **Original** quote → **Comment** layout, newest batch on top, with `---` rules between batches. The scratchpad sub-tab appears in the children rail only once the file exists (no manual create path) and is a read-only history with only an Edit affordance for manual cleanup. Scratchpads are non-core: never gate phase transitions, never count toward task completion, committable to source control.
 
 ### Bug Fixes
 
+- **Activity panel tolerates non-array task_summaries fields**: The viewer no longer blanks out when a `.spec-context.json` has `task_summaries[*].concerns` or `.files` stored as plain strings instead of arrays; such values are coerced so Phases and Tasks render cleanly (#159).
 - **Multi-line blockquotes render as one card**: The viewer's markdown renderer now groups consecutive `>` lines into a single `<blockquote>` element instead of fragmenting them into one card per line.
 - **Sidebar green check no longer contradicts "not created"**: The pass icon on Spec / Plan / Tasks sub-items in the explorer tree is now gated on the file actually existing on disk, so a hand-crafted or out-of-sync `.spec-context.json` can't show "completed" next to a missing document.
 
