@@ -209,7 +209,29 @@ The "Next Step" button shows only when:
 - The next core document doesn't exist yet
 - Label shows the next step name: "Plan", "Tasks", or "Implement"
 
-The **Refine** button (`✨ Refine (N)`) appears dynamically when inline comments are pending.
+The source-tab **Refine** button (`✨ Refine (N)`) still appears dynamically
+when pending inline comments are collected. Submitting it (a) dispatches a
+direct-edit prompt to the AI for the source document and (b) appends the same
+batch to the matching scratchpad file as a timestamped history block.
+
+### Scratchpad footer (overrides the matrix above)
+
+When the active document is a **scratchpad** (`*-extra.md`, `isScratchpad: true`)
+the footer is replaced by a dedicated, read-only set — gated entirely on the
+active doc, independent of spec status:
+
+| Active doc | Left side | Right side |
+|------------|-----------|------------|
+| scratchpad (file exists) | — | Edit |
+
+- **Edit** reuses the standard `editDocument` affordance to open the scratchpad
+  in VS Code's text editor for manual cleanup.
+- A scratchpad chip only appears in the children rail once its `*-extra.md`
+  file exists on disk — there is no manual create flow, and therefore no
+  "file absent" state to render here. The file is created as a side effect of
+  the source-tab batch Refine when it appends the first batch.
+- There is no scratchpad-tab Refine button or `applyScratchpad` message; the
+  AI dispatch path is exclusively the source-tab batch Refine described above.
 
 ---
 

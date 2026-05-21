@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### New Features
+
+- **Inline review comments now persist to a per-document scratchpad**: When you submit a batch of inline comments via the source-tab **Refine** button, the AI gets the direct-edit prompt as before *and* the same batch is appended to a matching `<doc>-extra.md` history file (`spec-extra.md`, `plan-extra.md`, `tasks-extra.md`). Each entry records the exact source line, the nearest preceding heading, and the full source block (paragraph or list item, walked from the actual source markdown) so the trail stays meaningful even after the source file is edited and line numbers shift. Entries render as a labeled `## Refinement batch · TIMESTAMP` → `### Line N · Section` → **Original** quote → **Comment** layout, newest batch on top, with `---` rules between batches. The scratchpad sub-tab appears in the children rail only once the file exists (no manual create path) and is a read-only history with only an Edit affordance for manual cleanup. Scratchpads are non-core: never gate phase transitions, never count toward task completion, committable to source control.
+
+### Bug Fixes
+
+- **Multi-line blockquotes render as one card**: The viewer's markdown renderer now groups consecutive `>` lines into a single `<blockquote>` element instead of fragmenting them into one card per line.
+- **Sidebar green check no longer contradicts "not created"**: The pass icon on Spec / Plan / Tasks sub-items in the explorer tree is now gated on the file actually existing on disk, so a hand-crafted or out-of-sync `.spec-context.json` can't show "completed" next to a missing document.
+
 ## [0.16.0] - 2026-05-12
 
 ### New Features
