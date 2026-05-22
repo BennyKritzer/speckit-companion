@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-05-22
+
 ### New Features
 
 - **IDE Chat provider — route prompts to your editor's built-in AI chat**: A new `ide-chat` value for `speckit.aiProvider` dispatches the assembled prompt to the host editor's built-in chat instead of spawning a terminal CLI. It auto-detects the host (VS Code/Copilot, Cursor, Windsurf, Antigravity), resolves the right chat command, strips the bookkeeping preamble, shortens the spec path to just the spec name, inlines the new-spec description, and formats the command per host (dot `/speckit.tasks` for Copilot/Windsurf, dash `/speckit-tasks` for Cursor/Antigravity skills). Requires spec-kit initialized for the host editor (`specify init --ai <agent>`); when it isn't, the prompt is prefilled (not sent) with an actionable warning.
@@ -11,6 +13,12 @@ All notable changes to this project will be documented in this file.
   > **⚠️ Cursor and Windsurf support is work-in-progress.** Only **VS Code / GitHub Copilot** is fully supported end-to-end (prefill **and** auto-submit). **Cursor** prefills the command but you must press **Enter** to send it (Cursor exposes no callable "submit prompt" command). **Windsurf** drops the prompt on open, so the command is **copied to your clipboard** and Cascade is opened for you to paste (⌘V) and press Enter. **Antigravity** is best-effort. These forks' chat commands are proprietary/undocumented and may change.
 
 - **Optional SpecKit commands surface as per-tab buttons in the spec viewer**: SpecKit's three optional refinement commands now appear as one-click footer buttons on the tab where each is most useful — **Clarify** on the Spec tab, **Checklist** on the Plan tab, and **Analyze** on the Tasks tab (right before implementing). They are built-in and workflow-agnostic (no `customCommands`/`customWorkflows` entry required), sit alongside any custom-command buttons, and dispatch the same registered command you'd run from the Command Palette (provider formatting and step tracking included). A user-defined command with the same id takes precedence so overrides always win (#156).
+
+- **Activity view & PHASES timeline overhaul**: Reworked the spec-viewer Activity tab and the `.spec-context.json` pipeline behind it. The PHASES card now reports active time (idle gaps capped) with an overall Started / Total / Ended header and per-substep timing; completion timestamps finalize correctly, sub-second durations no longer all read `<1s`, the Implement phase no longer repeats a generic `phase1` label, the repeated author badge is de-noised, and the Activity tab no longer shows the previously-selected tab's sub-navigation. Skill-authored context fields are now declared in the schema (#169).
+
+### Bug Fixes
+
+- **Spec documents render correctly on Windows and CRLF checkouts**: The spec viewer's markdown renderer now normalizes CRLF / lone CR to LF before parsing, so documents checked out with Windows line endings (git `autocrlf`) or opened in a Windows-mounted dev-container render as formatted markdown instead of raw text (literal `#`, `---`, and `-` prefixes). It also strips spec-kit's leading YAML frontmatter and the tasks.md `## Format:` notation legend so that authoring boilerplate no longer leaks into the rendered output on any platform (#170, closes #158).
 
 ## [0.17.0] - 2026-05-21
 
