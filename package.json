@@ -2,7 +2,7 @@
   "name": "speckit-companion",
   "displayName": "SpecKit Companion",
   "description": "VS Code companion for GitHub SpecKit - spec-driven development with AI assistants",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "license": "MIT",
   "publisher": "alfredoperez",
   "icon": "icon.png",
@@ -683,6 +683,7 @@
             "default": "claude",
             "enum": [
               "claude",
+              "claude-vscode",
               "gemini",
               "copilot",
               "codex",
@@ -692,6 +693,7 @@
             ],
             "enumDescriptions": [
               "Claude Code - Full feature support (steering, agents, skills, hooks)",
+              "Claude in VS Code - Opens the Claude Code panel (anthropic.claude-code) and pre-fills the prompt (press Enter to send)",
               "Gemini CLI - Steering support",
               "GitHub Copilot CLI - Steering and agents support",
               "Codex CLI - Steering and skills support",

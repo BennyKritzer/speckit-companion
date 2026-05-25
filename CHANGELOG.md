@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-05-25
+
+### New Features
+
+- **Claude in VS Code provider — drive specs from the Claude Code panel instead of a terminal**: A new `claude-vscode` value for `speckit.aiProvider` opens the Claude Code GUI panel (the `anthropic.claude-code` extension) and pre-fills the assembled prompt, rather than spawning the `claude` CLI in a terminal. The full prompt — including the `.spec-context.json` bookkeeping preamble — is written to a workspace file and `@`-mentioned so the panel receives the whole instruction, while the visible command is cleaned for readability. **Known limitation:** the panel pre-fills but does not auto-submit — press **Enter** to send. Falls back to the default provider for an unrecognized `speckit.aiProvider` value (#171).
+
+- **Workflows hide themselves when the active provider can't run them**: A workflow can declare `supportedAiProviders`; when set, it is hidden from selection unless the active `speckit.aiProvider` is in that list (e.g. the Claude-only SDD workflow now surfaces only for `claude` / `claude-vscode`). Existing specs keep their real steps under any provider — `getWorkflow()` resolves against the unfiltered list, so only the selection menu is filtered (#172).
+
+### Improvements
+
+- **README refresh**: Screenshots re-shot against the current viewer UI with a leaner image set and an AI hero image; retired the deferred `VIDEO-PROMPT.md` (#174).
+
 ## [0.18.0] - 2026-05-22
 
 ### New Features

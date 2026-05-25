@@ -11,9 +11,9 @@ The spec workspace for developers running AI agents through Spec-Driven Developm
 
 ## Recently Shipped
 
+- **v0.19.0** Claude in VS Code provider (drive specs from the Claude Code panel), provider-aware workflow filtering, refreshed README screenshots
 - **v0.18.0** IDE Chat provider, optional SpecKit commands as per-tab buttons, activity view & PHASES timeline overhaul, Windows/CRLF rendering fix
 - **v0.17.0** Inline comment composer as a single GitHub-style card, per-document review-comment scratchpads
-- **v0.16.0** Viewer footer state machine + dynamic Approve label, per-spec timeline panel, Beta Features settings group, Refine-wipes-plan fix
 - [Full changelog →](./CHANGELOG.md)
 
 ## Why it exists
