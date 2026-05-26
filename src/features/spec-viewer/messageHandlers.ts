@@ -41,6 +41,7 @@ import {
 } from "./reviewComments";
 import { findRunningStep } from "./stateDerivation";
 import type { CoreDocumentType } from "./types";
+import type { ReviewCommentDoc } from "../../core/types/specContext";
 import {
   DocumentType,
   SpecViewerState,
@@ -813,7 +814,7 @@ async function persistCommentMutation(
 async function handleAddComment(
   specDirectory: string,
   id: string,
-  doc: CoreDocumentType,
+  doc: ReviewCommentDoc,
   lineNum: number,
   lineContent: string,
   comment: string,
@@ -822,7 +823,7 @@ async function handleAddComment(
   const instance = deps.getInstance(specDirectory);
   let sourceLines: string[] | null = null;
   const sourceDoc = instance?.state.availableDocuments.find(
-    (d) => d.isCore && (d.type === doc || d.fileName === `${doc}.md`),
+    (d) => d.type === doc || d.fileName === `${doc}.md` || d.fileName === doc,
   );
   if (sourceDoc) {
     try {
@@ -876,7 +877,7 @@ async function handleRemoveComment(
  */
 async function dispatchDocRefinement(
   specDirectory: string,
-  doc: CoreDocumentType,
+  doc: ReviewCommentDoc,
   deps: MessageHandlerDependencies,
 ): Promise<void> {
   const instance = deps.getInstance(specDirectory);
@@ -894,9 +895,10 @@ async function dispatchDocRefinement(
 
   // Resolve the AI-prompt target filename from the source doc so workflows
   // with non-matching step / file names (SDD's `specify` step → `spec.md`)
-  // target the correct file. Fall back to `${doc}.md` when unresolved.
+  // or non-core docs (e.g. `data-model`, `checklists/requirements`) target
+  // the correct file. Fall back to `${doc}.md` when unresolved.
   const sourceDoc = instance.state.availableDocuments.find(
-    (d) => d.isCore && (d.type === doc || d.fileName === `${doc}.md`),
+    (d) => d.type === doc || d.fileName === `${doc}.md` || d.fileName === doc,
   );
   const filename = sourceDoc?.fileName ?? `${doc}.md`;
   const targetPath = instance.state.changeRoot || specDirectory;

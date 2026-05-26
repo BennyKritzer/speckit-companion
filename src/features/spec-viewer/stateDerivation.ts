@@ -80,7 +80,7 @@ function pickReviewComments(ctx: SpecContext): ReviewComment[] | undefined {
         const anchor = e.anchor as Record<string, unknown> | undefined;
         if (
             typeof e.id === 'string' &&
-            (e.doc === 'spec' || e.doc === 'plan' || e.doc === 'tasks') &&
+            typeof e.doc === 'string' && e.doc.length > 0 &&
             typeof e.comment === 'string' &&
             (e.status === 'pending' || e.status === 'applied') &&
             typeof e.createdAt === 'string' &&

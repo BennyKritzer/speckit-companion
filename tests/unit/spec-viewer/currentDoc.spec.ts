@@ -46,8 +46,13 @@ describe("currentDoc()", () => {
     expect(currentDoc()).toBeNull();
   });
 
-  it("returns null for an unknown document type", () => {
+  it("passes non-core doc identifiers through verbatim", () => {
     setCurrentDoc("research");
-    expect(currentDoc()).toBeNull();
+    expect(currentDoc()).toBe("research");
+  });
+
+  it("passes nested doc paths through verbatim", () => {
+    setCurrentDoc("checklists/requirements");
+    expect(currentDoc()).toBe("checklists/requirements");
   });
 });
