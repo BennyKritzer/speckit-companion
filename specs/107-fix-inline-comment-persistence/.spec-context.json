@@ -185,6 +185,54 @@
       "comment": "test 10",
       "status": "pending",
       "createdAt": "2026-05-26T14:31:13.066Z"
+    },
+    {
+      "id": "ref-1779809277382-crkrc",
+      "doc": "checklists/requirements",
+      "anchor": {
+        "heading": "Requirement Completeness",
+        "blockText": "- [x] Success criteria are technology-agnostic (no implementation details)",
+        "line": 19
+      },
+      "comment": "test 4",
+      "status": "pending",
+      "createdAt": "2026-05-26T15:27:57.385Z"
+    },
+    {
+      "id": "ref-1779809290972-ncnvk",
+      "doc": "data-model",
+      "anchor": {
+        "heading": "`ReviewComment` (`webview/src/spec-viewer/types.ts`)",
+        "blockText": "### `.spec-context.json` (relevant fields)",
+        "line": 31
+      },
+      "comment": "test 5",
+      "status": "pending",
+      "createdAt": "2026-05-26T15:28:10.974Z"
+    },
+    {
+      "id": "ref-1779809296956-0nid5",
+      "doc": "research",
+      "anchor": {
+        "heading": "Decision 1: Root cause",
+        "blockText": "6. `persistAdd()` early-exits → no `addComment` message posted → comment not persisted.",
+        "line": 25
+      },
+      "comment": "test 6",
+      "status": "pending",
+      "createdAt": "2026-05-26T15:28:16.958Z"
+    },
+    {
+      "id": "ref-1779809306663-96hez",
+      "doc": "tasks",
+      "anchor": {
+        "heading": "Format: `[ID] [P?] [Story] Description`",
+        "blockText": "## Phase 1: User Story 1 — Comments on spec.md Persist and Restore (Priority: P1) 🎯 MVP",
+        "line": 15
+      },
+      "comment": "test 45",
+      "status": "pending",
+      "createdAt": "2026-05-26T15:28:26.666Z"
     }
   ]
 }
