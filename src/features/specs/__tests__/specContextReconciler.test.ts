@@ -16,6 +16,7 @@ function makeContext(overrides: Partial<SpecContext> = {}): SpecContext {
 const h = (overrides: Partial<HistoryEntry> = {}): HistoryEntry => ({
     step: 'specify',
     substep: null,
+    kind: 'start',
     from: { step: null, substep: null },
     by: 'extension',
     at: '2026-04-29T00:00:00Z',
@@ -69,6 +70,56 @@ describe('reconcile', () => {
                 h({ step: 'specify', from: { step: null, substep: null } }),
             ],
         });
+        expect(reconcile(ctx)).toBeNull();
+    });
+
+    // Regression: the user's exact production file. Old preamble (d) told the
+    // AI to atomically append `plan-start` + flip currentStep="plan" on the
+    // /speckit.specify completion, leaving the AI's specify-completion status
+    // ("specified") inconsistent with currentStep ("plan"). The viewer then
+    // renders a phantom "Generating Plan…" forever. Reconciler must roll
+    // currentStep back to match the completed-form status.
+    it('rolls currentStep back when status indicates a different (earlier) step', () => {
+        const ctx = makeContext({
+            currentStep: 'plan',
+            status: 'specified',
+            history: [
+                h({ step: 'specify', from: { step: null, substep: null } }),
+                h({ step: 'specify', from: { step: 'specify', substep: null }, at: '2026-04-29T00:01:00Z' }),
+                h({ step: 'plan',    from: { step: 'specify', substep: null }, at: '2026-04-29T00:01:00Z' }),
+            ],
+        });
+        const result = reconcile(ctx)!;
+        expect(result).not.toBeNull();
+        expect(result.currentStep).toBe('specify');
+        expect(result.status).toBe('specified');
+    });
+
+    it('rolls currentStep back from tasks→plan when status=planned', () => {
+        const ctx = makeContext({
+            currentStep: 'tasks',
+            status: 'planned',
+            history: [
+                h({ step: 'plan', from: { step: 'specify', substep: null } }),
+                h({ step: 'plan', from: { step: 'plan',    substep: null }, at: '2026-04-29T00:01:00Z' }),
+                h({ step: 'tasks',from: { step: 'plan',    substep: null }, at: '2026-04-29T00:01:00Z' }),
+            ],
+        });
+        const result = reconcile(ctx)!;
+        expect(result.currentStep).toBe('plan');
+        expect(result.status).toBe('planned');
+    });
+
+    it('does NOT roll back when currentStep already matches the status owner', () => {
+        const ctx = makeContext({
+            currentStep: 'specify',
+            status: 'specified',
+            history: [
+                h({ step: 'specify', from: { step: null, substep: null } }),
+                h({ step: 'specify', from: { step: 'specify', substep: null }, at: '2026-04-29T00:01:00Z' }),
+            ],
+        });
+        // Clean state — no rollback needed.
         expect(reconcile(ctx)).toBeNull();
     });
 });

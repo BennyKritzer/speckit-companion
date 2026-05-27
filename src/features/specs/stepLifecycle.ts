@@ -113,7 +113,7 @@ export async function setStatus(
                     {
                         step: ctx.currentStep,
                         substep: null,
-                        from: { step: ctx.currentStep, substep: null },
+                        kind: 'complete',
                         by,
                         at,
                     }
@@ -143,7 +143,7 @@ export async function reactivate(
                     {
                         step: ctx.currentStep,
                         substep: null,
-                        from: { step: ctx.currentStep, substep: null },
+                        kind: 'complete',
                         by,
                         at,
                     }

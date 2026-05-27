@@ -18,6 +18,7 @@ import {
 } from '../workflows';
 import { updateStepProgress, readSpecContextSync } from './specContextManager';
 import { startStep, completeStep, setStatus, reactivate } from './stepLifecycle';
+import { lastEntryIsCompletionFor } from './historyHelpers';
 import { updateSelectionContextKeys } from './selectionContextKeys';
 import { track as trackTerminal } from './terminalStepTracker';
 import type { HistoryEntry, StepName } from '../../core/types/specContext';
@@ -41,23 +42,8 @@ const LIFECYCLE_STEPS: ReadonlySet<string> = new Set([
     'analyze',
 ]);
 
-/**
- * Walk `history` from newest to oldest and report whether the most recent
- * entry for `step` is a completion (self-loop `from.step === step`,
- * `substep == null`). Used by the complete-on-advance guard to skip
- * emitting a redundant completion when the prior step is already done.
- */
-function lastEntryIsCompletionFor(
-    history: HistoryEntry[],
-    step: StepName | string
-): boolean {
-    for (let i = history.length - 1; i >= 0; i--) {
-        const e = history[i];
-        if (e.step !== step) continue;
-        return e.from?.step === step && e.substep == null;
-    }
-    return false;
-}
+// `lastEntryIsCompletionFor` is shared with messageHandlers (Approve button
+// path) — lifted into a stdlib-only helper module to avoid the duplicate.
 
 /**
  * Register SpecKit workflow commands (create, specify, plan, tasks, etc.)
