@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-05-27
+
+### Added
+
+- **Brand-name provider labels** (spec 108): the AI provider dropdown now shows disambiguating brand names alongside the technical slugs (e.g. "Claude Code", "GitHub Copilot CLI", "Gemini CLI"), so the selection isn't ambiguous when multiple CLIs share a vendor.
+
+### Changed
+
+- **`.spec-context.json` schema migration**: collapsed the separate `stepHistory{}` map and `transitions[]` array into a single canonical append-only `history[]` log; added an explicit `kind: "start" | "complete"` field on each entry, replacing the self-loop `from.step === step` convention. Legacy files normalize transparently on read; the writer always emits the new shape. `stepHistory` is now derived in-memory by the viewer.
+- **Per-spec history is the single source of truth**: viewer panels and the stepper derive their per-step state from `history[]`, eliminating the prior dual-source drift that produced phantom "Generating <step>…" states.
+
+### Fixed
+
+- **State machine end-to-end** (15 findings, F1–F16): no more duplicate completion entries on phase-button clicks; the Approve button is hidden on backward-viewed stepper tabs so it can't re-dispatch already-completed phases; status closes at `implemented` rather than skipping straight to `completed`. The `Mark Completed` button is now the single user-owned closure gate for the implement step.
+- **Stepper visual sync**: the per-step stepper now re-derives `stepHistory` on filesystem-watcher updates, not just on user clicks — the badge and the orange progress ring stay synchronized after the AI completes a step (closes F16).
+- **Wrapping task line rendering** (spec 112): wrapping tasks no longer reserve a phantom flex row beneath the text, and the `+` comment-button slot stays reserved through hover so the text doesn't reflow.
+- **Sidebar empty rows** (spec 114): child step rows in `'empty'` state no longer attach an open command — clicking them stays inert until the AI generates the doc, replacing the prior file-not-found error toast.
+- **Inline-comment persistence**: comments now persist on any document (`spec.md`, `plan.md`, `tasks.md`, child docs), not only `spec.md`.
+- **Comment line-height parity** (spec 110): adjacent task lines render at the same height as commented lines, removing the inline-comment-induced jitter.
+- **Preamble hardening**: every preamble now pins a real dispatch-time UTC for the seed entry (no more midnight placeholders), fences the seed-write block to override schema proposals in the feature description, and splits `by: "extension"` (extension-dispatched) from `by: "ai"` (AI-appended). A unicode-fenced closure checklist reinforces "MUST DO BEFORE ENDING" so the AI doesn't drop completion entries.
+- **Install pipeline**: `vscode:prepublish` now chains `npm run compile` before `npm run package-web`, ensuring extension-side TypeScript always recompiles into `dist/` before `vsce package` bundles. Previously webpack-only prepublish silently shipped stale `dist/` when only extension code changed.
+- **Viewer typography**: header bottom-margins increased for breathability (h1 16→20, h2 8→16, h3 6→10 px) and markdown content font size +1 px overall; the wrapping task line line-height tightens for visual cohesion.
+
 ## [0.20.0] - 2026-05-25
 
 ### Documentation
