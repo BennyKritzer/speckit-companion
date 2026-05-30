@@ -187,7 +187,8 @@ export type FooterScope = 'spec' | 'step';
 export type FooterVisibleWhen = (
     ctx: SpecContext,
     step: StepName,
-    stepHistory: Record<string, StepHistoryEntry>
+    stepHistory: Record<string, StepHistoryEntry>,
+    workflowSteps?: any[]
 ) => boolean;
 
 export interface FooterAction {

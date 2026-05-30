@@ -6,7 +6,7 @@ import { ConfigManager } from '../core/utils/configManager';
 import { AIProviders, Timing } from '../core/constants';
 import { waitForShellReady, executeCommandInHiddenTerminal } from '../core/utils/terminalUtils';
 import { createTempFile } from '../core/utils/tempFileUtils';
-import { IAIProvider, AIExecutionResult, dispatchSlashCommandViaTempFile, buildPromptDispatchCommand } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult, dispatchSlashCommandViaTempFile, buildPromptDispatchCommand } from './aiProvider';
 import { splitContextPreamble } from './promptBuilder';
 import { detectShell, formatPromptFileSubstitution, Shell } from '../core/utils/shellDetection';
 import { getPermissionFlagForProvider } from './permissionValidation';
@@ -76,7 +76,7 @@ export class ClaudeCodeProvider implements IAIProvider {
     /**
      * Execute a prompt in a visible terminal (split view)
      */
-    async executeInTerminal(prompt: string, title: string = 'SpecKit - Claude Code'): Promise<vscode.Terminal> {
+    async executeInTerminal(prompt: string, title: string = 'SpecKit - Claude Code', options?: AIOptions): Promise<vscode.Terminal> {
         try {
             const { systemPrompt, userPrompt } = this.splitPreambleFromPrompt(prompt);
 
@@ -93,6 +93,9 @@ export class ClaudeCodeProvider implements IAIProvider {
                 promptFilePath,
                 promptText: userPrompt,
                 shell,
+                agent: options?.agent,
+                model: options?.model,
+                continueFlag: options?.continue
             });
 
             const terminal = vscode.window.createTerminal({
@@ -133,7 +136,7 @@ export class ClaudeCodeProvider implements IAIProvider {
     /**
      * Execute a prompt in headless/background mode
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         this.outputChannel.appendLine(`[ClaudeCodeProvider] Invoking Claude Code in headless mode`);
         this.outputChannel.appendLine(`========================================`);
         this.outputChannel.appendLine(prompt);
@@ -157,6 +160,9 @@ export class ClaudeCodeProvider implements IAIProvider {
             promptFilePath,
             promptText: userPrompt,
             shell,
+            agent: options?.agent,
+            model: options?.model,
+            continueFlag: options?.continue
         });
 
         return executeCommandInHiddenTerminal({
@@ -186,7 +192,7 @@ export class ClaudeCodeProvider implements IAIProvider {
      * @param title - Terminal title
      * @param autoExecute - If false, shows command but waits for user to press Enter (default: true)
      */
-    async executeSlashCommand(command: string, title: string = 'SpecKit - Claude Code', autoExecute: boolean = true): Promise<vscode.Terminal> {
+    async executeSlashCommand(command: string, title: string = 'SpecKit - Claude Code', options?: AIOptions | boolean): Promise<vscode.Terminal> {
         try {
             const slashCommand = command.startsWith('/') ? command : `/${command}`;
             const firstSpace = slashCommand.indexOf(' ');
@@ -213,8 +219,11 @@ export class ClaudeCodeProvider implements IAIProvider {
                 cliInvocation,
                 slashCommand: slashName,
                 promptText: args,
-                autoExecute,
+                autoExecute: typeof options === 'boolean' ? options : (options?.autoExecute ?? true),
                 logPrefix: 'Claude',
+                agent: typeof options === 'object' ? options.agent : undefined,
+                model: typeof options === 'object' ? options.model : undefined,
+                continueFlag: typeof options === 'object' ? options.continue : undefined,
             });
 
             return terminal;

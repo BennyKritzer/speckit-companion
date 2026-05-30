@@ -6,7 +6,7 @@ import { AIProviders, Timing } from '../core/constants';
 import { waitForShellReady, executeCommandInHiddenTerminal } from '../core/utils/terminalUtils';
 import { createTempFile } from '../core/utils/tempFileUtils';
 import { ensureCliInstalled } from '../core/utils/installUtils';
-import { IAIProvider, AIExecutionResult } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult } from './aiProvider';
 import { getPermissionFlagForProvider } from './permissionValidation';
 
 const execAsync = promisify(exec);
@@ -79,7 +79,7 @@ export class GeminiCliProvider implements IAIProvider {
      * Execute a prompt in a visible terminal (split view)
      * Gemini CLI runs in interactive mode - we start it first, then send the prompt
      */
-    async executeInTerminal(prompt: string, title: string = 'SpecKit - Gemini'): Promise<vscode.Terminal> {
+    async executeInTerminal(prompt: string, title: string = 'SpecKit - Gemini', options?: AIOptions): Promise<vscode.Terminal> {
         try {
             await this.ensureInstalled();
             const cliPath = this.getCliPath();
@@ -96,9 +96,21 @@ export class GeminiCliProvider implements IAIProvider {
 
             const initDelay = this.getInitDelay();
 
+            // Prepare extra flags
+            let extraFlags = '';
+            if (options?.agent) {
+                extraFlags += `--agent "${options.agent}" `;
+            }
+            if (options?.model) {
+                extraFlags += `--model "${options.model}" `;
+            }
+            if (options?.continue) {
+                extraFlags += `--continue `;
+            }
+
             // Wait for shell to be ready, then start Gemini in interactive mode
             await waitForShellReady(terminal);
-            terminal.sendText(cliPath, true);
+            terminal.sendText(`${cliPath} ${extraFlags.trim()}`, true);
 
             // After Gemini initializes, send the prompt then Enter separately
             setTimeout(() => {
@@ -123,7 +135,7 @@ export class GeminiCliProvider implements IAIProvider {
      * Execute a prompt in headless/background mode
      * Uses pipe to send prompt to Gemini CLI
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.ensureInstalled();
         this.outputChannel.appendLine(`[GeminiCliProvider] Invoking Gemini CLI in headless mode`);
         this.outputChannel.appendLine(`========================================`);
@@ -135,7 +147,19 @@ export class GeminiCliProvider implements IAIProvider {
         const cliPath = this.getCliPath();
 
         const promptFilePath = await createTempFile(this.context, prompt, 'background-prompt', false);
-        const commandLine = `cat "${promptFilePath}" | ${cliPath}`;
+        
+        let extraFlags = '';
+        if (options?.agent) {
+            extraFlags += `--agent "${options.agent}" `;
+        }
+        if (options?.model) {
+            extraFlags += `--model "${options.model}" `;
+        }
+        if (options?.continue) {
+            extraFlags += `--continue `;
+        }
+
+        const commandLine = `cat "${promptFilePath}" | ${cliPath} ${extraFlags.trim()}`.trim();
 
         return executeCommandInHiddenTerminal({
             commandLine,
@@ -152,10 +176,10 @@ export class GeminiCliProvider implements IAIProvider {
      * Execute a slash command in terminal
      * Gemini CLI supports slash commands in interactive mode
      */
-    async executeSlashCommand(command: string, title: string = 'SpecKit - Gemini'): Promise<vscode.Terminal> {
+    async executeSlashCommand(command: string, title: string = 'SpecKit - Gemini', options?: AIOptions): Promise<vscode.Terminal> {
         await this.ensureInstalled();
         // Ensure command starts with /
         const slashCommand = command.startsWith('/') ? command : `/${command}`;
-        return this.executeInTerminal(slashCommand, title);
+        return this.executeInTerminal(slashCommand, title, options);
     }
 }

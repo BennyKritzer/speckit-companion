@@ -88,6 +88,12 @@ export interface CustomCommandConfig {
     step?: string;
     /** Tooltip text shown on hover */
     tooltip?: string;
+    /** Optional AI agent identifier for this command */
+    agent?: string;
+    /** Optional AI model identifier for this command */
+    model?: string;
+    /** If true, continue previous AI session if supported */
+    continue?: boolean;
     /** Whether to append or inject the spec directory */
     requiresSpecDir?: boolean;
     /** Whether to auto-execute in terminal (default: true) */

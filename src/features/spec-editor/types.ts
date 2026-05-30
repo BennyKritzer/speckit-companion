@@ -151,14 +151,31 @@ export interface WorkflowDefinition {
     displayName: string;
     /** Description shown in picker */
     description?: string;
-    /** Command for specify step */
+    /** Workflow steps */
+    steps?: Array<{
+        name: string;
+        label?: string;
+        command: string;
+        agent?: string;
+        model?: string;
+        continue?: boolean;
+    }>;
+    /** @deprecated Legacy command for specify step */
     stepSpecify: string;
-    /** Command for plan step */
+    /** @deprecated Command for plan step */
     stepPlan?: string;
-    /** Command for implement step */
+    /** @deprecated Command for implement step */
     stepImplement?: string;
     /** Custom commands for the specify step (shown next to Submit) */
-    specifyCommands?: Array<{ name: string; title: string; command: string; tooltip?: string }>;
+    specifyCommands?: Array<{
+        name: string;
+        title: string;
+        command: string;
+        tooltip?: string;
+        agent?: string;
+        model?: string;
+        continue?: boolean;
+    }>;
 }
 
 // ============================================

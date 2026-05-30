@@ -51,6 +51,12 @@ export interface WorkflowStepConfig {
     subDir?: string;
     /** If true, unattached related docs are shown as children of this step */
     includeRelatedDocs?: boolean;
+    /** Optional AI agent identifier for this step */
+    agent?: string;
+    /** Optional AI model identifier for this step */
+    model?: string;
+    /** If true, continue previous AI session if supported */
+    continue?: boolean;
 }
 
 /**
@@ -95,6 +101,12 @@ export interface WorkflowCommandConfig {
     step: string;
     /** Tooltip shown on hover */
     tooltip?: string;
+    /** Optional AI agent identifier for this command */
+    agent?: string;
+    /** Optional AI model identifier for this command */
+    model?: string;
+    /** If true, continue previous AI session if supported */
+    continue?: boolean;
 }
 
 /**

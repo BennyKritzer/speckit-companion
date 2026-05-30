@@ -110,9 +110,7 @@ export async function scanDocuments(
 
     if (steps && steps.length > 0) {
         for (const step of steps) {
-            // Skip action-only steps (e.g. implement/apply) — they have no output file
-            if (step.actionOnly) continue;
-
+            // Action-only steps might not have a file, but we include them so they show in the progress stepper
             const fileName = step.file ?? `${step.name}.md`;
 
             // Try specDirectory first, then changeRoot
@@ -139,6 +137,7 @@ export async function scanDocuments(
                 filePath,
                 exists,
                 isCore: true,
+                actionOnly: step.actionOnly,
                 category: 'core'
             });
 

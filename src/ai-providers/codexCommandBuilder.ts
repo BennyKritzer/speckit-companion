@@ -24,6 +24,9 @@ export interface CodexExecCommandOptions {
     script: 'sh' | 'ps';
     promptFilePath: string;
     permissionFlag?: string;
+    model?: string;
+    agent?: string;
+    continueFlag?: boolean;
 }
 
 /**
@@ -37,12 +40,25 @@ export interface CodexExecCommandOptions {
  * @param opts.permissionFlag   Optional flag placed immediately before the
  *                              trailing `-`. Empty / whitespace-only values
  *                              are treated as if the flag were omitted.
+ * @param opts.model            Optional AI model identifier.
+ * @param opts.agent            Optional AI agent identifier.
+ * @param opts.continueFlag     If true, continues previous session.
  */
 export function buildCodexExecCommand(opts: CodexExecCommandOptions): string {
-    const { script, promptFilePath, permissionFlag } = opts;
+    const { script, promptFilePath, permissionFlag, model, agent, continueFlag } = opts;
 
     const trimmedFlag = permissionFlag?.trim() ?? '';
-    const flagSegment = trimmedFlag.length > 0 ? `${trimmedFlag} ` : '';
+    let flagSegment = trimmedFlag.length > 0 ? `${trimmedFlag} ` : '';
+
+    if (agent) {
+        flagSegment += `--agent "${agent}" `;
+    }
+    if (model) {
+        flagSegment += `--model "${model}" `;
+    }
+    if (continueFlag) {
+        flagSegment += `--continue `;
+    }
 
     if (script === 'ps') {
         return `$OutputEncoding = [System.Text.UTF8Encoding]::new(); Get-Content "${promptFilePath}" -Raw -Encoding UTF8 | codex exec ${flagSegment}-`;

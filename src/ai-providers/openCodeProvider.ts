@@ -7,7 +7,7 @@ import { AIProviders, Timing } from '../core/constants';
 import { waitForShellReady, executeCommandInHiddenTerminal } from '../core/utils/terminalUtils';
 import { createTempFile } from '../core/utils/tempFileUtils';
 import { ensureCliInstalled } from '../core/utils/installUtils';
-import { IAIProvider, AIExecutionResult, buildPromptDispatchCommand } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult, buildPromptDispatchCommand } from './aiProvider';
 import { getPermissionFlagForProvider } from './permissionValidation';
 
 export class OpenCodeProvider implements IAIProvider {
@@ -53,17 +53,27 @@ export class OpenCodeProvider implements IAIProvider {
         );
     }
 
-    async executeInTerminal(prompt: string, title: string = 'SpecKit - OpenCode'): Promise<vscode.Terminal> {
+    async executeInTerminal(prompt: string, title: string = 'SpecKit - OpenCode', options?: AIOptions): Promise<vscode.Terminal> {
         try {
             await this.ensureInstalled();
             const cliPath = this.getCliPath();
             const permissionFlag = this.getPermissionFlag();
+
+            this.outputChannel.appendLine('--- FULL PROMPT PAYLOAD (executeInTerminal) ---');
+            this.outputChannel.appendLine(prompt);
+            this.outputChannel.appendLine('-----------------------------------------------');
+
             const tempFilePath = await createTempFile(this.context, prompt, 'prompt', true);
             const command = buildPromptDispatchCommand({
                 cliInvocation: cliPath,
-                flags: `${permissionFlag}-p `,
+                flags: `${permissionFlag}--prompt `,
                 promptFilePath: tempFilePath,
                 promptText: prompt,
+                agent: options?.agent,
+                model: options?.model,
+                continueFlag: options?.continue,
+                outputChannel: this.outputChannel,
+                logPrefix: '[OpenCode]'
             });
 
             const terminal = vscode.window.createTerminal({
@@ -94,7 +104,7 @@ export class OpenCodeProvider implements IAIProvider {
         }
     }
 
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.ensureInstalled();
 
         this.outputChannel.appendLine(`[OpenCodeProvider] Invoking OpenCode CLI in headless mode`);
@@ -105,12 +115,18 @@ export class OpenCodeProvider implements IAIProvider {
         const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
         const cliPath = this.getCliPath();
         const permissionFlag = this.getPermissionFlag();
+
         const tempFilePath = await createTempFile(this.context, prompt, 'background-prompt', true);
         const commandLine = buildPromptDispatchCommand({
             cliInvocation: cliPath,
-            flags: `${permissionFlag}-p `,
+            flags: `${permissionFlag}--prompt `,
             promptFilePath: tempFilePath,
             promptText: prompt,
+            agent: options?.agent,
+            model: options?.model,
+            continueFlag: options?.continue,
+            outputChannel: this.outputChannel,
+            logPrefix: '[OpenCode Background]'
         });
 
         return executeCommandInHiddenTerminal({
@@ -124,9 +140,9 @@ export class OpenCodeProvider implements IAIProvider {
         });
     }
 
-    async executeSlashCommand(command: string, title: string = 'SpecKit - OpenCode', _autoExecute: boolean = true): Promise<vscode.Terminal> {
+    async executeSlashCommand(command: string, title: string = 'SpecKit - OpenCode', options?: AIOptions): Promise<vscode.Terminal> {
         await this.ensureInstalled();
         const slashCommand = command.startsWith('/') ? command : `/${command}`;
-        return this.executeInTerminal(slashCommand, title);
+        return this.executeInTerminal(slashCommand, title, options);
     }
 }

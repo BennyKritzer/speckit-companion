@@ -58,8 +58,8 @@ export function StepTab(props: StepTabProps) {
     const isClickable = (exists || index === 0) && !isLocked;
 
     const vs = viewerState.value;
-    // R003: checkmark only when completed AND the step's document exists.
-    const vsCompleted = (vs?.highlights?.includes(stepName) ?? false) && stepDocExists;
+    // R003: checkmark only when completed AND (the step's document exists OR it's an actionOnly step).
+    const vsCompleted = (vs?.highlights?.includes(stepName) ?? false) && (stepDocExists || !!doc.actionOnly);
     const vsSubstep = vs?.activeSubstep?.step === stepName ? vs.activeSubstep.name : null;
 
     // Collapse to four canonical states (R007, R008).

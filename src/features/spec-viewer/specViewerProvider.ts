@@ -11,6 +11,7 @@ import { generateHtml } from "./html";
 import { createMessageHandlers } from "./messageHandlers";
 import { computeStaleness } from "./staleness";
 import { getAIProvider } from "../../extension";
+import { AIOptions } from "../../ai-providers/aiProvider";
 import {
   calculatePhases,
   calculateTaskCompletion,
@@ -487,8 +488,8 @@ export class SpecViewerProvider {
         const inst = this.getInstance(dir);
         return this.resolveWorkflowSteps(dir, inst?.state.changeRoot);
       },
-      executeInTerminal: async (prompt: string) => {
-        await getAIProvider().executeInTerminal(prompt);
+      executeInTerminal: async (prompt: string, title?: string, options?: AIOptions) => {
+        await getAIProvider().executeInTerminal(prompt, title, options);
       },
       outputChannel: this.outputChannel,
       context: this.context,

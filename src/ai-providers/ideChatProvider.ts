@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { AIProviders, Commands } from '../core/constants';
 import { SpecKitDetector } from '../speckit/detector';
-import { IAIProvider, AIExecutionResult } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult } from './aiProvider';
 import { splitContextPreamble, cleanCommandArg } from './promptBuilder';
 
 /**
@@ -285,7 +285,7 @@ export class IdeChatProvider implements IAIProvider {
      * `undefined` (no terminal) — call sites tolerate this via the widened
      * IAIProvider return type.
      */
-    async executeInTerminal(prompt: string, _title?: string): Promise<vscode.Terminal | undefined> {
+    async executeInTerminal(prompt: string, _title?: string, options?: AIOptions): Promise<vscode.Terminal | undefined> {
         await this.dispatchToChat(prompt);
         return undefined;
     }
@@ -295,7 +295,7 @@ export class IdeChatProvider implements IAIProvider {
      * report a non-failure exit code (`undefined`), which callers already treat
      * as success.
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.dispatchToChat(prompt);
         return { exitCode: undefined };
     }
@@ -304,7 +304,7 @@ export class IdeChatProvider implements IAIProvider {
      * Slash commands have no terminal analog for chat — route the command text
      * to the host chat like any other prompt. Returns `undefined`.
      */
-    async executeSlashCommand(command: string, _title?: string, _autoExecute?: boolean): Promise<vscode.Terminal | undefined> {
+    async executeSlashCommand(command: string, _title?: string, options?: AIOptions): Promise<vscode.Terminal | undefined> {
         await this.dispatchToChat(command);
         return undefined;
     }

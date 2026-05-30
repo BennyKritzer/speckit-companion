@@ -77,29 +77,37 @@ function isSpecDone(ctx: SpecContext): boolean {
 function shouldShowApprove(
     ctx: SpecContext,
     step: StepName,
-    stepHistory: DerivedHistory
+    stepHistory: DerivedHistory,
+    workflowSteps?: WorkflowStepConfig[]
 ): boolean {
-    // Implement step closure is owned by `Mark Completed` (gated on
+    const stepList = workflowSteps ? workflowSteps.map(s => s.name) : STEP_NAMES;
+    
+    // The final step closure is owned by `Mark Completed` (gated on
     // `isSpecDone(ctx)`). Approve here would surface a duplicate
-    // "Complete" button the moment every task box gets ticked, before
-    // status actually flips to `implemented`.
-    if (step === 'implement') return false;
+    // "Complete" button before status actually flips.
+    if (step === stepList[stepList.length - 1] || step === 'implement') return false;
+    
     // Approve must target the spec's actual current step. When the user
     // navigates backward via the stepper, dispatching the next step from
     // a past tab would re-run already-completed phases.
     if (step !== ctx.currentStep) return false;
+    
     const entry = stepHistory[step];
     if (!entry?.startedAt) return false;
-    const idx = STEP_NAMES.indexOf(step);
+    
+    const idx = stepList.indexOf(step as StepName);
     if (idx < 0) return false;
+    
     // Any later step started → workflow has moved past this tab.
-    for (let i = idx + 1; i < STEP_NAMES.length; i++) {
-        if (stepHistory[STEP_NAMES[i]]?.startedAt) return false;
+    for (let i = idx + 1; i < stepList.length; i++) {
+        if (stepHistory[stepList[i]]?.startedAt) return false;
     }
+    
     // Step in flight → always show.
     if (!entry.completedAt) return true;
+    
     // Step is done → only show if there's a later step left to dispatch.
-    return idx < STEP_NAMES.length - 1;
+    return idx < stepList.length - 1;
 }
 
 /**
@@ -163,9 +171,10 @@ export const FOOTER_ACTIONS: FooterAction[] = [
         label: 'Approve',
         scope: 'step',
         tooltip: 'Approve this step and continue',
-        visibleWhen: (ctx, step, stepHistory) => {
+        // Note: we pass workflowSteps dynamically in getFooterActions now to support custom workflows
+        visibleWhen: (ctx, step, stepHistory, workflowSteps) => {
             if (isTerminal(ctx.status)) return false;
-            return shouldShowApprove(ctx, step, stepHistory);
+            return shouldShowApprove(ctx, step, stepHistory, workflowSteps);
         },
     },
 ];
@@ -176,7 +185,7 @@ export function getFooterActions(
     workflowSteps?: WorkflowStepConfig[],
     stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status)
 ): FooterAction[] {
-    const visible = FOOTER_ACTIONS.filter(a => a.visibleWhen(ctx, step, stepHistory));
+    const visible = FOOTER_ACTIONS.filter(a => a.visibleWhen(ctx, step, stepHistory, workflowSteps));
     return visible.map(a =>
         a.id === FooterActionIds.APPROVE
             ? { ...a, label: getApproveLabel(step, workflowSteps) }

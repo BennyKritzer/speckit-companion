@@ -9,6 +9,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import SPEC_CONTEXT_SCHEMA from '../../core/types/spec-context.schema.json';
 import {
     HistoryEntry,
     HistoryEntryKind,
@@ -20,10 +21,6 @@ import {
 } from '../../core/types/specContext';
 
 export const SPEC_CONTEXT_FILENAME = '.spec-context.json';
-
-/** Load canonical schema (bundled via raw require). */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const SPEC_CONTEXT_SCHEMA = require('../../core/types/spec-context.schema.json');
 
 export function getSpecContextSchema(): unknown {
     return SPEC_CONTEXT_SCHEMA;

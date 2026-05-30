@@ -7,7 +7,7 @@ import { AIProviders, Timing } from '../core/constants';
 import { waitForShellReady, executeCommandInHiddenTerminal } from '../core/utils/terminalUtils';
 import { createTempFile } from '../core/utils/tempFileUtils';
 import { ensureCliInstalled } from '../core/utils/installUtils';
-import { IAIProvider, AIExecutionResult, buildPromptDispatchCommand } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult, buildPromptDispatchCommand } from './aiProvider';
 import { getPermissionFlagForProvider } from './permissionValidation';
 
 const execAsync = promisify(exec);
@@ -68,7 +68,7 @@ export class QwenCliProvider implements IAIProvider {
      * Execute a prompt in a visible terminal (split view)
      * Uses qwen -p "$(cat <tempFile>)" to pass the prompt
      */
-    async executeInTerminal(prompt: string, title: string = 'SpecKit - Qwen Code'): Promise<vscode.Terminal> {
+    async executeInTerminal(prompt: string, title: string = 'SpecKit - Qwen Code', options?: AIOptions): Promise<vscode.Terminal> {
         try {
             await this.ensureInstalled();
             const cliPath = this.getCliPath();
@@ -79,6 +79,9 @@ export class QwenCliProvider implements IAIProvider {
                 flags: `${permissionFlag}-p `,
                 promptFilePath: tempFilePath,
                 promptText: prompt,
+                agent: options?.agent,
+                model: options?.model,
+                continueFlag: options?.continue
             });
 
             const terminal = vscode.window.createTerminal({
@@ -117,7 +120,7 @@ export class QwenCliProvider implements IAIProvider {
     /**
      * Execute a prompt in headless/background mode
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.ensureInstalled();
 
         this.outputChannel.appendLine(`[QwenCliProvider] Invoking Qwen Code CLI in headless mode`);
@@ -135,6 +138,9 @@ export class QwenCliProvider implements IAIProvider {
             flags: `${permissionFlag}-p `,
             promptFilePath: tempFilePath,
             promptText: prompt,
+            agent: options?.agent,
+            model: options?.model,
+            continueFlag: options?.continue
         });
 
         return executeCommandInHiddenTerminal({
@@ -152,9 +158,10 @@ export class QwenCliProvider implements IAIProvider {
      * Execute a slash command in terminal
      * Delegates to executeInTerminal with the slash command as prompt
      */
-    async executeSlashCommand(command: string, title: string = 'SpecKit - Qwen Code', autoExecute: boolean = true): Promise<vscode.Terminal> {
+    async executeSlashCommand(command: string, title: string = 'SpecKit - Qwen Code', options?: AIOptions | boolean): Promise<vscode.Terminal> {
         await this.ensureInstalled();
         const slashCommand = command.startsWith('/') ? command : `/${command}`;
-        return this.executeInTerminal(slashCommand, title);
+        const aiOptions = typeof options === 'boolean' ? { autoExecute: options } : options;
+        return this.executeInTerminal(slashCommand, title, aiOptions);
     }
 }

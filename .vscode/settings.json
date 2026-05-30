@@ -1,59 +1,67 @@
 {
-  "peacock.color": "#D32F2F",
-  "chat.tools.terminal.autoApprove": {
-    "specs/": true,
-    ".specify/scripts/bash/": true,
-    ".specify/scripts/powershell/": true
-  },
-  "speckit.defaultWorkflow": "sdd",
   "speckit.customWorkflows": [
     {
-      "name": "sdd",
-      "displayName": "SDD",
-      "description": "Streamlined Spec-Driven Development Workflow",
-      "supportedAiProviders": ["claude", "claude-vscode"],
+      "name": "full-cycle",
+      "displayName": "Full Lifecycle (with Validate)",
+      "description": "Custom workflow with checklist and repo verification prep",
       "steps": [
         {
           "name": "specify",
-          "label": "Specification",
-          "command": "sdd:specify",
-          "file": "spec.md"
+          "label": "Specs",
+          "command": "speckit.specify",
+          "agent": "speckit.specify",
+          "file": "spec.md",
+          "includeRelatedDocs": true
+        },
+        {
+          "name": "clarify",
+          "label": "Clarify",
+          "command": "specify clarify",
+          "actionOnly": true,
+          "agent": "speckit.clarify",
+          "continue": true
         },
         {
           "name": "plan",
-          "label": "Plan",
-          "command": "sdd:plan",
+          "command": "speckit.plan",
+          "agent": "speckit.plan",
           "file": "plan.md"
         },
         {
+          "name": "analyze",
+          "label": "Analyze",
+          "command": "specify analyze",
+          "actionOnly": true,
+          "agent": "speckit.analyze"
+        },
+        {
           "name": "tasks",
-          "label": "Tasks",
-          "command": "sdd:tasks",
+          "command": "speckit.tasks",
+          "agent": "speckit.tasks",
           "file": "tasks.md"
         },
         {
-          "name": "implement",
-          "label": "Implement",
-          "command": "sdd:implement",
-          "actionOnly": true
-        }
-      ],
-      "commands": [
+          "name": "checklist",
+          "label": "Checklist",
+          "command": "specify checklist",
+          "file": "checklist.md",
+          "agent": "speckit.checklist"
+        },
         {
-          "name": "auto",
-          "title": "Auto Mode",
-          "command": "sdd:auto",
-          "step": "specify",
-          "tooltip": "Goes through the whole specification in auto mode"
+          "name": "git.validate",
+          "label": "Validate Git",
+          "command": "specify git.validate",
+          "actionOnly": true,
+          "agent": "speckit.git.validate"
+        },
+        {
+          "name": "implement",
+          "command": "speckit.implement",
+          "agent": "speckit.implement",
+          "actionOnly": true
         }
       ]
     }
   ],
-  "chat.promptFilesRecommendations": {
-    "speckit.constitution": true,
-    "speckit.specify": true,
-    "speckit.plan": true,
-    "speckit.tasks": true,
-    "speckit.implement": true
-  }
+  "speckit.defaultWorkflow": "full-cycle"
 }

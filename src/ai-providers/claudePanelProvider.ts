@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { AIProviders } from '../core/constants';
-import { IAIProvider, AIExecutionResult } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult } from './aiProvider';
 import { splitContextPreamble, cleanCommandArg } from './promptBuilder';
 
 /** Extension id of the Claude Code GUI extension. */
@@ -138,7 +138,7 @@ export class ClaudePanelProvider implements IAIProvider {
      * `undefined` (no terminal) — call sites tolerate this via the widened
      * IAIProvider return type.
      */
-    async executeInTerminal(prompt: string, _title?: string): Promise<vscode.Terminal | undefined> {
+    async executeInTerminal(prompt: string, _title?: string, options?: AIOptions): Promise<vscode.Terminal | undefined> {
         await this.dispatchToPanel(prompt);
         return undefined;
     }
@@ -148,7 +148,7 @@ export class ClaudePanelProvider implements IAIProvider {
      * and report a non-failure exit code (`undefined`), which callers treat as
      * success.
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.dispatchToPanel(prompt);
         return { exitCode: undefined };
     }
@@ -157,7 +157,7 @@ export class ClaudePanelProvider implements IAIProvider {
      * Slash commands have no terminal analog for the panel — route the command
      * text to the panel like any other prompt. Returns `undefined`.
      */
-    async executeSlashCommand(command: string, _title?: string, _autoExecute?: boolean): Promise<vscode.Terminal | undefined> {
+    async executeSlashCommand(command: string, _title?: string, options?: AIOptions | boolean): Promise<vscode.Terminal | undefined> {
         await this.dispatchToPanel(command);
         return undefined;
     }

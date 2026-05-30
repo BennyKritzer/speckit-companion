@@ -130,14 +130,16 @@ function pickCheckpointStatus(ctx: SpecContext): CheckpointStatus | undefined {
  *    (the workflow moved past it — inferred completion).
  */
 export function isStepCompleted(
-    step: StepName,
-    currentStep: StepName,
-    stepHistory: Record<string, { startedAt?: string; completedAt?: string | null }>
+    step: StepName | string,
+    currentStep: StepName | string,
+    stepHistory: Record<string, { startedAt?: string; completedAt?: string | null }>,
+    workflowSteps?: WorkflowStepConfig[]
 ): boolean {
     const entry = stepHistory[step];
     if (entry?.completedAt) return true;
-    const stepIdx = STEP_NAMES.indexOf(step);
-    const currentIdx = STEP_NAMES.indexOf(currentStep);
+    const stepList = workflowSteps ? workflowSteps.map(s => s.name) : STEP_NAMES;
+    const stepIdx = stepList.indexOf(step as StepName);
+    const currentIdx = stepList.indexOf(currentStep as StepName);
     // Inferred completion: the workflow moved past this step.
     if (stepIdx >= 0 && currentIdx >= 0 && stepIdx < currentIdx) return true;
     // No history entry and not before currentStep → not completed.
@@ -147,11 +149,13 @@ export function isStepCompleted(
 
 export function deriveStepBadges(
     ctx: SpecContext,
-    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status)
+    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status),
+    workflowSteps?: WorkflowStepConfig[]
 ): Record<string, StepBadgeState> {
     const out: Record<string, StepBadgeState> = {};
-    for (const step of STEP_NAMES) {
-        if (isStepCompleted(step, ctx.currentStep, stepHistory)) {
+    const stepList = workflowSteps ? workflowSteps.map(s => s.name) : STEP_NAMES;
+    for (const step of stepList) {
+        if (isStepCompleted(step, ctx.currentStep, stepHistory, workflowSteps)) {
             out[step] = 'completed';
         } else {
             const entry = stepHistory[step];
@@ -181,14 +185,16 @@ export function findRunningStep(
 
 export function derivePulse(
     ctx: SpecContext,
-    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status)
-): StepName | null {
+    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status),
+    workflowSteps?: WorkflowStepConfig[]
+): StepName | string | null {
     if (ctx.status === 'completed' || ctx.status === 'archived') {
         return null;
     }
-    for (const step of STEP_NAMES) {
+    const stepList = workflowSteps ? workflowSteps.map(s => s.name) : STEP_NAMES;
+    for (const step of stepList) {
         const entry = stepHistory[step];
-        if (entry?.startedAt && !isStepCompleted(step, ctx.currentStep, stepHistory)) {
+        if (entry?.startedAt && !isStepCompleted(step, ctx.currentStep, stepHistory, workflowSteps)) {
             return step;
         }
     }
@@ -197,19 +203,23 @@ export function derivePulse(
 
 export function deriveHighlights(
     ctx: SpecContext,
-    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status)
-): StepName[] {
-    return STEP_NAMES.filter(s => isStepCompleted(s, ctx.currentStep, stepHistory));
+    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status),
+    workflowSteps?: WorkflowStepConfig[]
+): StepName[] | string[] {
+    const stepList = workflowSteps ? workflowSteps.map(s => s.name) : STEP_NAMES;
+    return stepList.filter(s => isStepCompleted(s, ctx.currentStep, stepHistory, workflowSteps));
 }
 
 export function deriveActiveSubstep(
     ctx: SpecContext,
-    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status)
+    stepHistory: DerivedHistory = deriveStepHistory(ctx.history ?? [], ctx.currentStep, ctx.status),
+    workflowSteps?: WorkflowStepConfig[]
 ): ViewerState['activeSubstep'] {
-    for (const step of STEP_NAMES) {
+    const stepList = workflowSteps ? workflowSteps.map(s => s.name) : STEP_NAMES;
+    for (const step of stepList) {
         const entry = stepHistory[step];
         const active = entry?.substeps?.find(s => !s.completedAt);
-        if (active) return { step, name: active.name };
+        if (active) return { step: step as StepName, name: active.name };
     }
     const progress = (ctx as { progress?: string | null }).progress;
     if (progress) return { step: ctx.currentStep, name: progress };
@@ -242,10 +252,10 @@ export function deriveViewerState(
     return {
         status: ctx.status,
         activeStep,
-        steps: deriveStepBadges(ctx, stepHistory),
-        pulse: derivePulse(ctx, stepHistory),
-        highlights: deriveHighlights(ctx, stepHistory),
-        activeSubstep: deriveActiveSubstep(ctx, stepHistory),
+        steps: deriveStepBadges(ctx, stepHistory, workflowSteps),
+        pulse: derivePulse(ctx, stepHistory, workflowSteps) as StepName | null,
+        highlights: deriveHighlights(ctx, stepHistory, workflowSteps) as StepName[],
+        activeSubstep: deriveActiveSubstep(ctx, stepHistory, workflowSteps),
         footer: getFooterActions(ctx, activeStep, workflowSteps),
         history: normalizeHistoryAttribution(ctx),
         stepHistory,

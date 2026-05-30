@@ -8,7 +8,7 @@ import { AIProviders, Timing } from '../core/constants';
 import { waitForShellReady, executeCommandInHiddenTerminal } from '../core/utils/terminalUtils';
 import { createTempFile } from '../core/utils/tempFileUtils';
 import { ensureCliInstalled } from '../core/utils/installUtils';
-import { IAIProvider, AIExecutionResult } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult } from './aiProvider';
 import { getPermissionFlagForProvider } from './permissionValidation';
 import { readInitOptions } from './initOptions';
 import { buildCodexExecCommand } from './codexCommandBuilder';
@@ -133,7 +133,7 @@ export class CodexCliProvider implements IAIProvider {
      * Always writes the resolved prompt to a temp file and streams it into
      * `codex exec -` via a shell-native pipe (no `<` redirection).
      */
-    async executeInTerminal(prompt: string, title: string = 'SpecKit - Codex CLI'): Promise<vscode.Terminal> {
+    async executeInTerminal(prompt: string, title: string = 'SpecKit - Codex CLI', options?: AIOptions): Promise<vscode.Terminal> {
         try {
             await this.ensureInstalled();
 
@@ -144,6 +144,9 @@ export class CodexCliProvider implements IAIProvider {
                 script,
                 promptFilePath: tempFilePath,
                 permissionFlag: this.getPermissionFlag(),
+                agent: options?.agent,
+                model: options?.model,
+                continueFlag: options?.continue
             });
 
             this.outputChannel.appendLine(`[codex] script=${script} (init-options)`);
@@ -176,7 +179,7 @@ export class CodexCliProvider implements IAIProvider {
      * Execute a prompt in headless/background mode.
      * Same pipeline as `executeInTerminal`: resolve → temp file → pipe.
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.ensureInstalled();
 
         this.outputChannel.appendLine(`[CodexCliProvider] Invoking Codex CLI in headless mode`);
@@ -191,6 +194,9 @@ export class CodexCliProvider implements IAIProvider {
             script,
             promptFilePath: tempFilePath,
             permissionFlag: this.getPermissionFlag(),
+            agent: options?.agent,
+            model: options?.model,
+            continueFlag: options?.continue
         });
 
         this.outputChannel.appendLine(`[codex] script=${script} (init-options)`);
@@ -216,7 +222,7 @@ export class CodexCliProvider implements IAIProvider {
      * @param title - Terminal title
      * @param autoExecute - If false, shows command but waits for user to press Enter (default: true)
      */
-    async executeSlashCommand(command: string, title: string = 'SpecKit - Codex CLI', autoExecute: boolean = true): Promise<vscode.Terminal> {
+    async executeSlashCommand(command: string, title: string = 'SpecKit - Codex CLI', options?: AIOptions | boolean): Promise<vscode.Terminal> {
         try {
             await this.ensureInstalled();
 
@@ -230,6 +236,9 @@ export class CodexCliProvider implements IAIProvider {
                 script,
                 promptFilePath: tempFilePath,
                 permissionFlag: this.getPermissionFlag(),
+                agent: typeof options === 'object' ? options.agent : undefined,
+                model: typeof options === 'object' ? options.model : undefined,
+                continueFlag: typeof options === 'object' ? options.continue : undefined,
             });
 
             this.outputChannel.appendLine(`[codex] script=${script} (init-options)`);
@@ -245,7 +254,7 @@ export class CodexCliProvider implements IAIProvider {
             terminal.show();
 
             await waitForShellReady(terminal);
-            terminal.sendText(terminalCommand, autoExecute);
+            terminal.sendText(terminalCommand, typeof options === 'boolean' ? options : (options?.autoExecute ?? true));
 
             this.scheduleCleanup(tempFilePath);
 

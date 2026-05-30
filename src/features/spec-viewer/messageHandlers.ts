@@ -5,7 +5,7 @@
 
 import * as path from "path";
 import * as vscode from "vscode";
-import { formatCommandForProvider } from "../../ai-providers/aiProvider";
+import { formatCommandForProvider, AIOptions } from "../../ai-providers/aiProvider";
 import {
   buildLifecyclePrompt,
   buildPrompt,
@@ -72,7 +72,7 @@ export interface MessageHandlerDependencies {
   resolveWorkflowSteps: (
     specDirectory: string,
   ) => Promise<WorkflowStepConfig[]>;
-  executeInTerminal: (prompt: string) => Promise<void>;
+  executeInTerminal: (prompt: string, title?: string, options?: AIOptions) => Promise<void>;
   outputChannel: vscode.OutputChannel;
   context: vscode.ExtensionContext;
 }
@@ -372,23 +372,22 @@ async function handleApprove(
 
   const ctx = readSpecContextSync(specDirectory);
   const steps = await deps.resolveWorkflowSteps(specDirectory);
-  const navSteps = steps.filter((s) => !s.actionOnly);
 
   // Dispatch routes off ctx.currentStep so a past stepper tab can't
   // misdirect the action. Fall back to docType only when currentStep
-  // isn't a navStep (e.g. the actionOnly implement step).
+  // isn't present in context.
   let currentIndex = ctx?.currentStep
-    ? navSteps.findIndex((s) => s.name === ctx.currentStep)
+    ? steps.findIndex((s) => s.name === ctx.currentStep)
     : -1;
   if (currentIndex < 0) {
     const docType = instance.state.currentDocument;
-    currentIndex = navSteps.findIndex((s) => s.name === docType);
+    currentIndex = steps.findIndex((s) => s.name === docType);
     if (currentIndex < 0) {
       const relatedDoc = instance.state.availableDocuments.find(
         (d) => d.type === docType && d.category === "related",
       );
       if (relatedDoc?.parentStep) {
-        currentIndex = navSteps.findIndex(
+        currentIndex = steps.findIndex(
           (s) => s.name === relatedDoc.parentStep,
         );
       }
@@ -406,28 +405,15 @@ async function handleApprove(
     }
   }
 
-  if (currentIndex >= 0 && currentIndex < navSteps.length - 1) {
+  if (currentIndex >= 0 && currentIndex < steps.length - 1) {
     // Execute next step's command
-    const nextStep = navSteps[currentIndex + 1];
-    if (isLifecycleStep(nextStep.name)) {
-      await startStep(specDirectory, nextStep.name as StepName, "extension");
-    }
+    const nextStep = steps[currentIndex + 1];
+    
+    // Always start the step if it's part of the workflow definition (fixes custom steps missing from hardcoded list)
+    await startStep(specDirectory, nextStep.name as StepName, "extension");
+    
     await deps.updateContent(specDirectory, instance.state.currentDocument);
     await executeStepInTerminal(nextStep, specDirectory, deps);
-  } else if (currentIndex === navSteps.length - 1) {
-    // Last navigable step: find the actionOnly implement step
-    const implementStep = steps.find((s) => s.actionOnly);
-    if (implementStep) {
-      if (isLifecycleStep(implementStep.name)) {
-        await startStep(
-          specDirectory,
-          implementStep.name as StepName,
-          "extension",
-        );
-      }
-      await deps.updateContent(specDirectory, instance.state.currentDocument);
-      await executeStepInTerminal(implementStep, specDirectory, deps);
-    }
   }
 }
 
@@ -491,10 +477,18 @@ async function executeStepInTerminal(
     step: step.name,
     specDir: targetPath,
   });
+  const aiOptions = {
+    agent: step.agent,
+    model: step.model,
+    continue: step.continue
+  };
   deps.outputChannel.appendLine(
     `[SpecViewer] Executing step "${label}": ${rawPrompt}`,
   );
-  await deps.executeInTerminal(prompt);
+  deps.outputChannel.appendLine(
+    `[SpecViewer] Sending to AI Provider with options: ${JSON.stringify(aiOptions)}`
+  );
+  await deps.executeInTerminal(prompt, undefined, aiOptions);
 }
 
 /**
@@ -574,7 +568,11 @@ async function handleClarify(
     deps.outputChannel.appendLine(
       `[SpecViewer] Executing enhancement command "${label}": ${rawPrompt}`,
     );
-    await deps.executeInTerminal(prompt);
+    await deps.executeInTerminal(prompt, undefined, {
+      agent: entry.agent,
+      model: entry.model,
+      continue: entry.continue,
+    });
     return;
   }
 
@@ -613,7 +611,11 @@ async function handleClarify(
       deps.outputChannel.appendLine(
         `[SpecViewer] Executing workflow command "${label}": ${rawPrompt}`,
       );
-      await deps.executeInTerminal(prompt);
+      await deps.executeInTerminal(prompt, undefined, {
+        agent: wfCmd.agent,
+        model: wfCmd.model,
+        continue: wfCmd.continue,
+      });
       return;
     }
   }
@@ -992,7 +994,16 @@ async function dispatchDocRefinement(
   deps.outputChannel.appendLine(
     `[SpecViewer] Dispatching ${pending.length} refinement(s) for ${doc} (direct edit)`,
   );
-  await deps.executeInTerminal(prompt);
+
+  // Apply refinement using the model/agent from the active step if available
+  const steps = await deps.resolveWorkflowSteps(specDirectory);
+  const activeStep = steps.find((s) => s.name === instance.state.currentStep);
+
+  await deps.executeInTerminal(prompt, undefined, {
+    agent: activeStep?.agent,
+    model: activeStep?.model,
+    continue: activeStep?.continue ?? true, // Refinements usually want to continue
+  });
 
   // Mark the dispatched comments applied — kept in .spec-context.json as
   // history (no separate file). The viewer refreshes to show the new status.

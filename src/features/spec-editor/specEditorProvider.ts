@@ -270,8 +270,16 @@ export class SpecEditorProvider {
             const prompt = `${command} ${tempFileSet.markdownFilePath}`;
             this.outputChannel.appendLine(`[SpecEditor] Using command: ${command} (temp file: ${tempFileSet.markdownFilePath})`);
 
+            // Extract AI options from the workflow's specify step if available
+            const specifyStep = workflow.steps?.find(s => s.name === WorkflowSteps.SPECIFY || s.name === 'spec');
+            const aiOptions = specifyStep ? {
+                agent: specifyStep.agent,
+                model: specifyStep.model,
+                continue: specifyStep.continue
+            } : undefined;
+
             // Execute in terminal
-            await provider.executeInTerminal(prompt, 'SpecKit - New Spec');
+            await provider.executeInTerminal(prompt, 'SpecKit - New Spec', aiOptions);
 
             // Mark as submitted
             await this.tempFileManager.markSubmitted(tempFileSet.id);

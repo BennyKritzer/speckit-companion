@@ -7,7 +7,7 @@ import { AIProviders, CLIDefaults, Timing } from '../core/constants';
 import { waitForShellReady, executeCommandInHiddenTerminal } from '../core/utils/terminalUtils';
 import { createTempFile } from '../core/utils/tempFileUtils';
 import { ensureCliInstalled } from '../core/utils/installUtils';
-import { IAIProvider, AIExecutionResult, buildPromptDispatchCommand } from './aiProvider';
+import { IAIProvider, AIOptions, AIExecutionResult, buildPromptDispatchCommand } from './aiProvider';
 import { getPermissionFlagForProvider } from './permissionValidation';
 
 const execAsync = promisify(exec);
@@ -72,7 +72,7 @@ export class CopilotCliProvider implements IAIProvider {
     /**
      * Execute a prompt in a visible terminal (split view)
      */
-    async executeInTerminal(prompt: string, title: string = 'SpecKit - Copilot'): Promise<vscode.Terminal> {
+    async executeInTerminal(prompt: string, title: string = 'SpecKit - Copilot', options?: AIOptions): Promise<vscode.Terminal> {
         try {
             await this.ensureInstalled();
             const cliPath = this.getCliPath();
@@ -85,6 +85,9 @@ export class CopilotCliProvider implements IAIProvider {
                 flags: `${permissionFlag}-p `,
                 promptFilePath,
                 promptText: cleanPrompt,
+                agent: options?.agent,
+                model: options?.model,
+                continueFlag: options?.continue
             });
 
             const terminal = vscode.window.createTerminal({
@@ -122,7 +125,7 @@ export class CopilotCliProvider implements IAIProvider {
     /**
      * Execute a prompt in headless/background mode
      */
-    async executeHeadless(prompt: string): Promise<AIExecutionResult> {
+    async executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult> {
         await this.ensureInstalled();
         // Strip leading slash from prompt — Copilot doesn't use slash commands
         const cleanPrompt = prompt.startsWith('/') ? prompt.substring(1) : prompt;
@@ -142,6 +145,9 @@ export class CopilotCliProvider implements IAIProvider {
             flags: `${permissionFlag}-p `,
             promptFilePath,
             promptText: cleanPrompt,
+            agent: options?.agent,
+            model: options?.model,
+            continueFlag: options?.continue
         });
 
         return executeCommandInHiddenTerminal({
@@ -159,9 +165,9 @@ export class CopilotCliProvider implements IAIProvider {
      * Execute a slash command in terminal
      * Copilot CLI doesn't have slash commands, so we pass the command as a prompt
      */
-    async executeSlashCommand(command: string, title: string = 'SpecKit - Copilot'): Promise<vscode.Terminal> {
+    async executeSlashCommand(command: string, title: string = 'SpecKit - Copilot', options?: AIOptions): Promise<vscode.Terminal> {
         await this.ensureInstalled();
         const prompt = command.startsWith('/') ? command.substring(1) : command;
-        return this.executeInTerminal(prompt, title);
+        return this.executeInTerminal(prompt, title, options);
     }
 }

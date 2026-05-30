@@ -226,9 +226,13 @@ export const FileNames = {
  */
 export const WorkflowSteps = {
     SPECIFY: 'specify',
+    CLARIFY: 'clarify',
     PLAN: 'plan',
     TASKS: 'tasks',
+    ANALYZE: 'analyze',
     IMPLEMENT: 'implement',
+    CHECKLIST: 'checklist',
+    GIT_VALIDATE: 'git.validate',
     CONFIG_SPECIFY: 'step-specify',
     CONFIG_PLAN: 'step-plan',
     CONFIG_TASKS: 'step-tasks',

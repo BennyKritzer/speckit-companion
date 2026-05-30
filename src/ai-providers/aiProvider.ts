@@ -13,12 +13,32 @@ export function buildPromptDispatchCommand(opts: {
     promptFilePath: string;
     promptText: string;
     shell?: Shell;
+    model?: string;
+    agent?: string;
+    continueFlag?: boolean;
+    outputChannel?: vscode.OutputChannel;
+    logPrefix?: string;
 }): string {
     const shell = opts.shell ?? detectShell();
 
+    // Prepare extra flags
+    let extraFlags = '';
+    if (opts.agent) {
+        extraFlags += `--agent "${opts.agent}" `;
+    }
+    if (opts.model) {
+        extraFlags += `--model "${opts.model}" `;
+    }
+    if (opts.continueFlag) {
+        extraFlags += `--continue `;
+    }
+
     if (shell === 'cmd') {
         const escaped = opts.promptText.replace(/"/g, '""').trim();
-        const line = `${opts.cliInvocation} ${opts.flags}"${escaped}"`;
+        const line = `${opts.cliInvocation} ${extraFlags}${opts.flags}"${escaped}"`;
+        if (opts.outputChannel) {
+            opts.outputChannel.appendLine(`${opts.logPrefix || '[AI]'} Executing literal command: ${line}`);
+        }
         if (line.length > CMD_LINE_MAX) {
             throw new Error(
                 `Prompt is too long for cmd.exe (${line.length} > ${CMD_LINE_MAX} chars). ` +
@@ -29,7 +49,11 @@ export function buildPromptDispatchCommand(opts: {
     }
 
     const substitution = formatPromptFileSubstitution(shell, opts.promptFilePath);
-    return `${opts.cliInvocation} ${opts.flags}"${substitution}"`;
+    const line = `${opts.cliInvocation} ${extraFlags}${opts.flags}"${substitution}"`;
+    if (opts.outputChannel) {
+        opts.outputChannel.appendLine(`${opts.logPrefix || '[AI]'} Executing literal command: ${line}`);
+    }
+    return line;
 }
 
 /**
@@ -54,9 +78,24 @@ export async function dispatchSlashCommandViaTempFile(opts: {
     promptText: string;
     autoExecute: boolean;
     logPrefix?: string;
+    model?: string;
+    agent?: string;
+    continueFlag?: boolean;
 }): Promise<void> {
     const { context, outputChannel, terminal, cliInvocation, slashCommand, promptText, autoExecute } = opts;
     const logPrefix = opts.logPrefix ?? 'AIProvider';
+
+    // Prepare extra flags
+    let extraFlags = '';
+    if (opts.agent) {
+        extraFlags += `--agent "${opts.agent}" `;
+    }
+    if (opts.model) {
+        extraFlags += `--model "${opts.model}" `;
+    }
+    if (opts.continueFlag) {
+        extraFlags += `--continue `;
+    }
 
     let line: string;
     let tempFilePath: string | null = null;
@@ -67,16 +106,16 @@ export async function dispatchSlashCommandViaTempFile(opts: {
         if (shell === 'cmd') {
             const escaped = promptText.replace(/"/g, '""').trim();
             const inner = slashCommand ? `${slashCommand} ${escaped}` : escaped;
-            line = `${cliInvocation} "${inner}"`;
+            line = `${cliInvocation} ${extraFlags}"${inner}"`;
         } else {
             const subst = formatPromptFileSubstitution(shell, tempFilePath);
             const inner = slashCommand ? `${slashCommand} ${subst}` : subst;
-            line = `${cliInvocation} "${inner}"`;
+            line = `${cliInvocation} ${extraFlags}"${inner}"`;
         }
     } else {
         line = slashCommand
-            ? `${cliInvocation} "${slashCommand}"`
-            : cliInvocation;
+            ? `${cliInvocation} ${extraFlags}"${slashCommand}"`
+            : `${cliInvocation} ${extraFlags}`.trim();
     }
 
     await waitForShellReady(terminal);
@@ -104,6 +143,17 @@ export interface AIExecutionResult {
 }
 
 /**
+ * Options for AI execution, including step-specific overrides
+ * like model, agent, and session continuity.
+ */
+export interface AIOptions {
+    model?: string;
+    agent?: string;
+    continue?: boolean;
+    autoExecute?: boolean;
+}
+
+/**
  * Abstract interface for AI assistant providers.
  * Implementations can support different AI CLI tools (Claude Code, Gemini CLI, etc.)
  */
@@ -127,25 +177,27 @@ export interface IAIProvider {
      * Execute a prompt in a visible terminal (split view)
      * @param prompt The prompt to send to the AI
      * @param title The terminal title
+     * @param options Optional AI execution settings
      * @returns The terminal instance, or undefined for providers that dispatch
      *          somewhere other than a terminal (e.g. the IDE Chat provider)
      */
-    executeInTerminal(prompt: string, title?: string): Promise<vscode.Terminal | undefined>;
+    executeInTerminal(prompt: string, title?: string, options?: AIOptions): Promise<vscode.Terminal | undefined>;
 
     /**
      * Execute a prompt in headless/background mode
      * @param prompt The prompt to send to the AI
+     * @param options Optional AI execution settings
      * @returns Execution result with exit code
      */
-    executeHeadless(prompt: string): Promise<AIExecutionResult>;
+    executeHeadless(prompt: string, options?: AIOptions): Promise<AIExecutionResult>;
 
     /**
      * Execute a slash command
      * @param command The slash command (e.g., "/speckit.specify")
      * @param title Optional terminal title
-     * @param autoExecute If false, shows command but waits for user to press Enter (default: true)
+     * @param options Optional AI execution settings
      */
-    executeSlashCommand(command: string, title?: string, autoExecute?: boolean): Promise<vscode.Terminal | undefined>;
+    executeSlashCommand(command: string, title?: string, options?: AIOptions | boolean): Promise<vscode.Terminal | undefined>;
 
     /**
      * Get the CLI permission flag for this provider based on the unified speckit.permissionMode setting.

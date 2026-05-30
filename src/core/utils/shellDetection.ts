@@ -25,6 +25,8 @@ export function formatPromptFileSubstitution(shell: Shell, absPath: string): str
         case 'bash':
         case 'unknown':
         default:
-            return `$(cat "${absPath}")`;
+            // Use single quotes for the path to avoid nesting issues with the outer 
+            // double quotes and to prevent $ expansion in the path itself.
+            return `$(cat '${absPath}')`;
     }
 }

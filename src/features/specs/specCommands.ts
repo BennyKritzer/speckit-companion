@@ -34,12 +34,14 @@ function toWorkspaceRelative(absOrRel: string): string {
 }
 
 const LIFECYCLE_STEPS: ReadonlySet<string> = new Set([
-    'specify',
-    'plan',
-    'tasks',
-    'implement',
-    'clarify',
-    'analyze',
+    WorkflowSteps.SPECIFY,
+    WorkflowSteps.PLAN,
+    WorkflowSteps.TASKS,
+    WorkflowSteps.IMPLEMENT,
+    WorkflowSteps.CLARIFY,
+    WorkflowSteps.ANALYZE,
+    WorkflowSteps.CHECKLIST,
+    WorkflowSteps.GIT_VALIDATE,
 ]);
 
 // `lastEntryIsCompletionFor` is shared with messageHandlers (Approve button
@@ -455,12 +457,24 @@ type NormalizedCustomCommand = {
     command: string;
     requiresSpecDir: boolean;
     autoExecute: boolean;
+    agent?: string;
+    model?: string;
+    continue?: boolean;
 };
 
 /**
  * Default workflow step names that are always registered as VS Code commands
  */
-const DEFAULT_WORKFLOW_STEP_NAMES = [WorkflowSteps.SPECIFY, WorkflowSteps.PLAN, WorkflowSteps.TASKS, WorkflowSteps.IMPLEMENT];
+const DEFAULT_WORKFLOW_STEP_NAMES = [
+    WorkflowSteps.SPECIFY, 
+    WorkflowSteps.CLARIFY,
+    WorkflowSteps.PLAN, 
+    WorkflowSteps.TASKS, 
+    WorkflowSteps.ANALYZE,
+    WorkflowSteps.IMPLEMENT, 
+    WorkflowSteps.CHECKLIST,
+    WorkflowSteps.GIT_VALIDATE
+];
 
 /**
  * Register phase-specific commands (specify, plan, tasks, implement, etc.)
@@ -472,12 +486,13 @@ function registerPhaseCommands(
 ): void {
     const phaseCommands = [
         { name: WorkflowSteps.SPECIFY, title: 'Specify', isWorkflowStep: true },
+        { name: WorkflowSteps.CLARIFY, title: 'Clarify', isWorkflowStep: true },
         { name: WorkflowSteps.PLAN, title: 'Plan', isWorkflowStep: true },
         { name: WorkflowSteps.TASKS, title: 'Tasks', isWorkflowStep: true },
+        { name: WorkflowSteps.ANALYZE, title: 'Analyze', isWorkflowStep: true },
         { name: WorkflowSteps.IMPLEMENT, title: 'Implement', isWorkflowStep: true },
-        { name: 'clarify', title: 'Clarify', isWorkflowStep: false },
-        { name: 'analyze', title: 'Analyze', isWorkflowStep: false },
-        { name: 'checklist', title: 'Checklist', isWorkflowStep: false },
+        { name: WorkflowSteps.CHECKLIST, title: 'Checklist', isWorkflowStep: true },
+        { name: WorkflowSteps.GIT_VALIDATE, title: 'Git.Validate', isWorkflowStep: true },
     ];
 
     for (const cmd of phaseCommands) {
@@ -569,6 +584,7 @@ async function executeWorkflowStep(
 
     // Resolve the command for this step
     const command = resolveStepCommand(workflow, step);
+    const stepConfig = (normalized.steps || []).find(s => s.name === step);
     outputChannel.appendLine(`[SpecKit] Resolved command: ${command}`);
 
     // Check if command exists (warn if custom command may not exist)
@@ -617,7 +633,18 @@ async function executeWorkflowStep(
         step,
         specDir: toWorkspaceRelative(targetDir),
     });
-    const terminal = await getAIProvider().executeInTerminal(wrapped, `SpecKit - ${title}`);
+
+    const aiOptions = stepConfig ? {
+        agent: stepConfig.agent,
+        model: stepConfig.model,
+        continue: stepConfig.continue
+    } : undefined;
+
+    if (aiOptions) {
+        outputChannel.appendLine(`[SpecKit] Sending to AI Provider with options: ${JSON.stringify(aiOptions)}`);
+    }
+
+    const terminal = await getAIProvider().executeInTerminal(wrapped, `SpecKit - ${title}`, aiOptions);
     if (LIFECYCLE_STEPS.has(step)) {
         trackTerminal(terminal, targetDir, step as StepName);
     }
@@ -729,7 +756,12 @@ function registerCustomCommand(
             await getAIProvider().executeSlashCommand(
                 commandText,
                 `SpecKit - ${selectedCommand.label}`,
-                selectedCommand.autoExecute
+                {
+                    autoExecute: selectedCommand.autoExecute,
+                    agent: selectedCommand.agent,
+                    model: selectedCommand.model,
+                    continue: selectedCommand.continue
+                }
             );
         })
     );
@@ -773,7 +805,10 @@ function normalizeCustomCommand(entry: CustomCommandConfig | string): Normalized
         title,
         command,
         requiresSpecDir: entry.requiresSpecDir,
-        autoExecute: entry.autoExecute
+        autoExecute: entry.autoExecute,
+        agent: entry.agent,
+        model: entry.model,
+        continue: entry.continue
     });
 }
 
@@ -783,6 +818,9 @@ function buildCustomCommand(config: {
     command?: string;
     requiresSpecDir?: boolean;
     autoExecute?: boolean;
+    agent?: string;
+    model?: string;
+    continue?: boolean;
 }): NormalizedCustomCommand | null {
     const rawCommand = config.command?.length ? config.command : config.name;
     if (!rawCommand) {
@@ -806,7 +844,10 @@ function buildCustomCommand(config: {
         description,
         command: commandText,
         requiresSpecDir: config.requiresSpecDir ?? true,
-        autoExecute: config.autoExecute ?? true
+        autoExecute: config.autoExecute ?? true,
+        agent: config.agent,
+        model: config.model,
+        continue: config.continue
     };
 }
 

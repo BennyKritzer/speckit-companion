@@ -103,6 +103,9 @@ export interface SpecDocument {
     /** Whether this is a core document (spec/plan/tasks) */
     isCore: boolean;
 
+    /** Whether this is an action-only step (e.g. no generated file) */
+    actionOnly?: boolean;
+
     /** Category for navigation grouping */
     category: DocumentCategory;
 
@@ -141,6 +144,9 @@ export interface SpecViewerState {
 
     /** Currently displayed document type */
     currentDocument: DocumentType;
+
+    /** Current workflow step name (e.g. 'specify', 'plan') */
+    currentStep?: string;
 
     /** List of all available documents in this spec */
     availableDocuments: SpecDocument[];
