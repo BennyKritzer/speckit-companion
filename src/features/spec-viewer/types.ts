@@ -33,8 +33,8 @@ export type DocumentType = CoreDocumentType | WorkflowDocumentType;
  * Phase completion information
  */
 export interface PhaseInfo {
-    /** Phase number (1=Spec, 2=Plan, 3=Tasks, 4=Done) */
-    phase: 1 | 2 | 3 | 4;
+    /** Phase number */
+    phase: number;
     /** Phase label */
     label: string;
     /** Whether this phase's file exists */
@@ -157,8 +157,8 @@ export interface SpecViewerState {
     /** Phase information for the stepper */
     phases: PhaseInfo[];
 
-    /** Current phase number (1-4) */
-    currentPhase: 1 | 2 | 3 | 4;
+    /** Current phase number */
+    currentPhase: number;
 
     /** Task completion percentage (0-100) */
     taskCompletionPercent: number;

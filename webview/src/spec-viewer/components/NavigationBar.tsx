@@ -62,9 +62,12 @@ export function NavigationBar() {
     const parentStepDoc = coreDocs.find(d => d.type === parentStepType);
     const showChildrenRow = displayRelatedDocs.length > 0 && parentStepDoc;
 
-    const activityActive = activityVisible.value;
     const activityMode = ns.activityPanelMode ?? 'beta';
+    const isActionOnlyDoc = coreDocs.find(d => d.type === currentDoc)?.actionOnly ?? false;
+    const activityActive = activityVisible.value || isActionOnlyDoc;
+    
     const handleActivityToggle = () => {
+        if (isActionOnlyDoc) return; // Locked open when in actionOnly phase
         activityVisible.value = !activityVisible.value;
     };
 
@@ -74,7 +77,7 @@ export function NavigationBar() {
                 <div class="step-tabs">
                     {coreDocs.map((doc, i) => {
                         const hasRelatedChildren = relatedDocs.some(d => d.parentStep === doc.type);
-                        const exists = doc.exists || hasRelatedChildren;
+                        const exists = doc.exists || hasRelatedChildren || !!doc.actionOnly;
                         return (
                             <>
                                 <StepTab
@@ -102,20 +105,50 @@ export function NavigationBar() {
                         );
                     })}
                 </div>
-                {activityMode !== 'off' && (
-                    <button
-                        type="button"
-                        class="activity-toggle"
-                        aria-pressed={activityActive}
-                        title="Toggle the activity overview for this spec"
-                        onClick={handleActivityToggle}
-                    >
-                        Activity
-                        {activityMode === 'beta' && (
-                            <span class="activity-toggle__beta">beta</span>
-                        )}
-                    </button>
-                )}
+                <div class="nav-right-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 }}>
+                    {ns.footerState?.showApproveButton && ns.footerState?.approveText && (
+                        <button
+                            type="button"
+                            onClick={() => vscode.postMessage({ type: 'approve' })}
+                            style={{
+                                background: 'color-mix(in srgb, var(--vscode-button-background) 85%, transparent)',
+                                color: 'var(--vscode-button-foreground)',
+                                border: 'none',
+                                padding: '4px 10px',
+                                borderRadius: '2px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                height: '24px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                fontWeight: 500,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
+                            }}
+                            onMouseOver={(e: any) => e.target.style.background = 'var(--vscode-button-hoverBackground)'}
+                            onMouseOut={(e: any) => e.target.style.background = 'color-mix(in srgb, var(--vscode-button-background) 85%, transparent)'}
+                            title={`Proceed to ${ns.footerState.approveText}`}
+                        >
+                            {ns.footerState.approveText} <span style={{ marginLeft: '4px', opacity: 0.8, fontSize: '14px', lineHeight: 1 }}>→</span>
+                        </button>
+                    )}
+                    {activityMode !== 'off' && (
+                        <button
+                            type="button"
+                            class="activity-toggle"
+                            style={{ marginLeft: 0, opacity: isActionOnlyDoc ? 0.5 : 1, cursor: isActionOnlyDoc ? 'default' : 'pointer' }}
+                            aria-pressed={activityActive}
+                            disabled={isActionOnlyDoc}
+                            title={isActionOnlyDoc ? "Activity view is required for this phase" : "Toggle the activity overview for this spec"}
+                            onClick={handleActivityToggle}
+                        >
+                            Activity
+                            {activityMode === 'beta' && (
+                                <span class="activity-toggle__beta">beta</span>
+                            )}
+                        </button>
+                    )}
+                </div>
             </div>
             {showChildrenRow && !activityActive && (
                 <div class="step-children" aria-label={`${parentStepDoc.label} files`}>

@@ -36,6 +36,9 @@ function deriveStatusFromCurrentStep(currentStep: StepName): Status {
             return 'tasking';
         case 'implement':
             return 'implementing';
+        case 'checklist':
+        case 'git.validate':
+            return 'finalizing';
     }
 }
 
@@ -50,7 +53,10 @@ function deriveCompletedStatus(currentStep: StepName): Status {
         case 'analyze':
             return 'ready-to-implement';
         case 'implement':
-            return 'completed';
+            return 'implemented';
+        case 'checklist':
+        case 'git.validate':
+            return 'finalized';
     }
 }
 
@@ -90,7 +96,8 @@ export function reconcile(ctx: SpecContext): SpecContext | null {
     // and roll `currentStep` back to whatever step that completed status
     // belongs to.
     const owner = stepOwningCompletedStatus(result.status);
-    if (owner && owner !== result.currentStep) {
+    const currentlyValid = deriveCompletedStatus(result.currentStep) === result.status;
+    if (!currentlyValid && owner && owner !== result.currentStep) {
         result = { ...result, currentStep: owner };
         changed = true;
     }

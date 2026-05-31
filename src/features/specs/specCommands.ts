@@ -5,7 +5,7 @@ import { SpecExplorerProvider, SpecInfo, isSpecLifecycleItem } from './specExplo
 import { NotificationUtils } from '../../core/utils/notificationUtils';
 import type { CustomCommandConfig, SpecTreeItem } from '../../core/types/config';
 import { Commands, ConfigKeys, SpecStatuses, WorkflowSteps } from '../../core/constants';
-import { formatCommandForProvider } from '../../ai-providers/aiProvider';
+import { formatCommandForProvider, AIOptions } from '../../ai-providers/aiProvider';
 import { buildPrompt } from '../../ai-providers/promptBuilder';
 import { isInsideSpecDirectory, getFileWatcherPatterns } from '../../core/specDirectoryResolver';
 import {
@@ -536,8 +536,9 @@ function registerPhaseCommands(
                     step: cmd.name,
                     specDir: toWorkspaceRelative(targetDir),
                 });
-                const terminal = await getAIProvider().executeInTerminal(wrapped, `SpecKit - ${cmd.title}`);
-                if (LIFECYCLE_STEPS.has(cmd.name)) {
+                const provider = getAIProvider();
+                const terminal = await provider.executeInTerminal(wrapped, `SpecKit - ${cmd.title}`, { specDir: targetDir });
+                if (LIFECYCLE_STEPS.has(cmd.name) && !provider.managesOwnLifecycle) {
                     trackTerminal(terminal, targetDir, cmd.name as StepName);
                 }
             })
@@ -634,18 +635,22 @@ async function executeWorkflowStep(
         specDir: toWorkspaceRelative(targetDir),
     });
 
-    const aiOptions = stepConfig ? {
+    let aiOptions: AIOptions | undefined = stepConfig ? {
         agent: stepConfig.agent,
         model: stepConfig.model,
         continue: stepConfig.continue
     } : undefined;
 
     if (aiOptions) {
+        aiOptions.specDir = targetDir;
         outputChannel.appendLine(`[SpecKit] Sending to AI Provider with options: ${JSON.stringify(aiOptions)}`);
+    } else {
+        aiOptions = { specDir: targetDir };
     }
 
-    const terminal = await getAIProvider().executeInTerminal(wrapped, `SpecKit - ${title}`, aiOptions);
-    if (LIFECYCLE_STEPS.has(step)) {
+    const provider = getAIProvider();
+    const terminal = await provider.executeInTerminal(wrapped, `SpecKit - ${title}`, aiOptions);
+    if (LIFECYCLE_STEPS.has(step) && !provider.managesOwnLifecycle) {
         trackTerminal(terminal, targetDir, step as StepName);
     }
 

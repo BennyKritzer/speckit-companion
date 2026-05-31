@@ -55,6 +55,12 @@ function setupClaudeDirectoryWatcher(
     specViewer: SpecViewerProvider,
     outputChannel: vscode.OutputChannel
 ): void {
+    const specContextPatterns = getFileWatcherPatterns().specs;
+    const specContextWatchers = specContextPatterns.map(p => {
+        // Watch for .spec-context.json files directly in the configured spec directories
+        const pattern = p.replace('/**/*', '/**/.spec-context.json');
+        return vscode.workspace.createFileSystemWatcher(pattern);
+    });
     const claudeWatcher = vscode.workspace.createFileSystemWatcher('**/.claude/**/*');
 
     let refreshTimeout: NodeJS.Timeout | undefined;
@@ -109,17 +115,22 @@ function setupClaudeDirectoryWatcher(
         transitionCache.delete(specDir);
     };
 
-    claudeWatcher.onDidCreate((uri) => debouncedRefresh('Create', uri));
-    claudeWatcher.onDidDelete((uri) => {
-        handleSpecContextDelete(uri);
-        debouncedRefresh('Delete', uri);
-    });
-    claudeWatcher.onDidChange((uri) => {
-        handleSpecContextChange(uri);
-        debouncedRefresh('Change', uri);
-    });
-
-    context.subscriptions.push(claudeWatcher);
+    const watchers = [claudeWatcher, ...specContextWatchers];
+    for (const watcher of watchers) {
+        watcher.onDidCreate((uri) => {
+            handleSpecContextChange(uri);
+            debouncedRefresh('Create', uri);
+        });
+        watcher.onDidDelete((uri) => {
+            handleSpecContextDelete(uri);
+            debouncedRefresh('Delete', uri);
+        });
+        watcher.onDidChange((uri) => {
+            handleSpecContextChange(uri);
+            debouncedRefresh('Change', uri);
+        });
+        context.subscriptions.push(watcher);
+    }
 }
 
 /**

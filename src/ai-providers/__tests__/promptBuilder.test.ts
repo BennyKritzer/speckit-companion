@@ -18,7 +18,7 @@ describe('buildPrompt', () => {
         beforeEach(() => mockConfig(true));
 
         it('wraps command with preamble for each known step', () => {
-            for (const step of ['specify', 'plan', 'tasks', 'implement'] as const) {
+            for (const step of ['specify', 'clarify', 'plan', 'tasks', 'analyze', 'implement', 'checklist', 'git.validate'] as const) {
                 const out = buildPrompt({
                     command: '/speckit.' + step + ' specs/001-demo',
                     step,
@@ -99,7 +99,7 @@ describe('buildPrompt', () => {
         // (round 3, F10/F14), preambles run ~6k chars. Bound kept generous-but-finite
         // to catch unintentional bloat.
         mockConfig(true);
-        for (const step of ['specify', 'plan', 'tasks', 'implement'] as const) {
+        for (const step of ['specify', 'clarify', 'plan', 'tasks', 'analyze', 'implement', 'checklist', 'git.validate'] as const) {
             const out = buildPrompt({ command: 'x', step, specDir: 'specs/001-demo' });
             expect(out.length).toBeLessThan(6500);
         }
@@ -129,7 +129,7 @@ describe('buildPrompt', () => {
         // phantom "Generating <next>…" state the schema cleanup exists to
         // prevent.
         mockConfig(true);
-        for (const step of ['specify', 'plan', 'tasks', 'implement'] as const) {
+        for (const step of ['specify', 'clarify', 'plan', 'tasks', 'analyze', 'implement', 'checklist', 'git.validate'] as const) {
             const out = buildPrompt({ command: 'x', step, specDir: 'specs/001-demo' });
             expect(out).toContain(`Leave currentStep on "${step}"`);
             expect(out).not.toContain('ATOMICALLY (in the same write');

@@ -1,67 +1,64 @@
 {
   "speckit.customWorkflows": [
     {
-      "name": "full-cycle",
-      "displayName": "Full Lifecycle (with Validate)",
-      "description": "Custom workflow with checklist and repo verification prep",
-      "steps": [
+        "name": "full-cycle",
+        "displayName": "Full Lifecycle (with Validate)",
+        "description": "Custom workflow with checklist and repo verification prep",
+        "steps": [
         {
-          "name": "specify",
-          "label": "Specs",
-          "command": "speckit.specify",
-          "agent": "speckit.specify",
-          "file": "spec.md",
-          "includeRelatedDocs": true
+            "name": "specify",
+            "command": "speckit.specify",
+            "file": "spec.md",
+            "includeRelatedDocs": true,
+            "continue": true
         },
         {
-          "name": "clarify",
-          "label": "Clarify",
-          "command": "specify clarify",
-          "actionOnly": true,
-          "agent": "speckit.clarify",
-          "continue": true
+            "name": "clarify",
+            "command": "speckit.clarify",
+            "continue": true,
+            "actionOnly": true
         },
         {
-          "name": "plan",
-          "command": "speckit.plan",
-          "agent": "speckit.plan",
-          "file": "plan.md"
+            "name": "plan",
+            "command": "speckit.plan",
+            "file": "plan.md",
+            "includeRelatedDocs": true,
+            "continue": true
         },
         {
-          "name": "analyze",
-          "label": "Analyze",
-          "command": "specify analyze",
-          "actionOnly": true,
-          "agent": "speckit.analyze"
+            "name": "tasks",
+            "command": "speckit.tasks",
+            "file": "tasks.md",
+            "includeRelatedDocs": true,
+            "continue": true
         },
         {
-          "name": "tasks",
-          "command": "speckit.tasks",
-          "agent": "speckit.tasks",
-          "file": "tasks.md"
+            "name": "analyze",
+            "command": "speckit.analyze",
+            "continue": true,
+            "actionOnly": true
         },
         {
-          "name": "checklist",
-          "label": "Checklist",
-          "command": "specify checklist",
-          "file": "checklist.md",
-          "agent": "speckit.checklist"
+            "name": "implement",
+            "command": "speckit.implement",
+            "continue": true,
+            "actionOnly": true
         },
         {
-          "name": "git.validate",
-          "label": "Validate Git",
-          "command": "specify git.validate",
-          "actionOnly": true,
-          "agent": "speckit.git.validate"
+            "name": "checklist",
+            "command": "speckit.checklist",
+            "continue": true,
+            "actionOnly": true
+            // Omitted actionOnly if checklist generates a checklist.md file
         },
         {
-          "name": "implement",
-          "command": "speckit.implement",
-          "agent": "speckit.implement",
-          "actionOnly": true
-        }
-      ]
+            "name": "git.validate",
+            "command": "speckit.git.validate",
+            "continue": true,
+            "actionOnly": true
+        }]
     }
   ],
-  "speckit.defaultWorkflow": "full-cycle"
+  "speckit.defaultWorkflow": "speckit",
+  "speckit.views.settings.visible": true
 }

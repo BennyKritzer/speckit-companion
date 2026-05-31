@@ -63,7 +63,7 @@ describe('stepLifecycle', () => {
         it('delegates to writer with step + by', async () => {
             await completeStep(SPEC_DIR, 'tasks', 'extension');
             const [, mutate] = mockUpdateSpecContext.mock.calls[0];
-            mutate({ stepHistory: {}, transitions: [] });
+            mutate({ history: [], stepHistory: {}, transitions: [] });
             expect(mockSetStepCompleted).toHaveBeenCalledWith(
                 expect.any(Object),
                 'tasks',

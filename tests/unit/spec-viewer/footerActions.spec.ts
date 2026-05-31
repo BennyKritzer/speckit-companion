@@ -141,7 +141,7 @@ describe('isSpecDone gate — Archive / Mark Completed visibility', () => {
         expect(ids).toContain(FooterActionIds.COMPLETE);
     });
 
-    it("shows Archive, Mark Completed, and Regenerate when status='implemented'", () => {
+    it("shows Archive, Mark Completed, Regenerate, and Approve when status='implemented'", () => {
         const ctx = baseCtx({
             workflow: Workflows.SDD,
             status: 'implemented',
@@ -152,7 +152,7 @@ describe('isSpecDone gate — Archive / Mark Completed visibility', () => {
         expect(ids).toContain(FooterActionIds.ARCHIVE);
         expect(ids).toContain(FooterActionIds.COMPLETE);
         expect(ids).toContain(FooterActionIds.REGENERATE);
-        expect(ids).not.toContain(FooterActionIds.APPROVE);
+        expect(ids).toContain(FooterActionIds.APPROVE);
     });
 
     it("shows Archive but hides Mark Completed when status='completed' (terminal)", () => {
@@ -323,7 +323,7 @@ describe('getApproveLabel', () => {
     });
 
     it('falls back to "Approve" when current step is not in workflow', () => {
-        expect(getApproveLabel('clarify', SDD_STEPS)).toBe('Approve');
+        expect(getApproveLabel('unknown' as any, SDD_STEPS)).toBe('Approve');
     });
 
     it('uses capitalized step name when label is missing', () => {

@@ -28,7 +28,7 @@ Each spec directory contains a `.spec-context.json` file that tracks workflow st
 `HistoryEntry`:
 ```ts
 {
-  step: 'specify' | 'clarify' | 'plan' | 'tasks' | 'analyze' | 'implement',
+  step: 'specify' | 'clarify' | 'plan' | 'tasks' | 'analyze' | 'implement' | 'checklist' | 'git.validate',
   substep: string | null,
   from: { step: string | null, substep: string | null },
   by: 'extension' | 'user' | 'cli' | 'sdd' | 'sdd-skill' | 'ai',

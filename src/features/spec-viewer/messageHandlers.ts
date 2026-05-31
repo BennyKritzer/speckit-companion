@@ -354,6 +354,8 @@ const LIFECYCLE_STEP_NAMES: ReadonlySet<string> = new Set([
   "tasks",
   "analyze",
   "implement",
+  "checklist",
+  "git.validate",
 ]);
 
 function isLifecycleStep(name: string): boolean {
@@ -412,7 +414,9 @@ async function handleApprove(
     // Always start the step if it's part of the workflow definition (fixes custom steps missing from hardcoded list)
     await startStep(specDirectory, nextStep.name as StepName, "extension");
     
-    await deps.updateContent(specDirectory, instance.state.currentDocument);
+    // Switch the webview to the next step so the user isn't stuck viewing the past
+    await deps.sendContentUpdateMessage(specDirectory, nextStep.name as DocumentType);
+    
     await executeStepInTerminal(nextStep, specDirectory, deps);
   }
 }
@@ -480,7 +484,8 @@ async function executeStepInTerminal(
   const aiOptions = {
     agent: step.agent,
     model: step.model,
-    continue: step.continue
+    continue: step.continue,
+    specDir: specDirectory
   };
   deps.outputChannel.appendLine(
     `[SpecViewer] Executing step "${label}": ${rawPrompt}`,

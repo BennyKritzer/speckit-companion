@@ -56,6 +56,7 @@ function isTerminal(status: string | undefined): boolean {
 function isSpecDone(ctx: SpecContext): boolean {
     return (
         ctx.status === 'implemented' ||
+        ctx.status === 'finalized' ||
         ctx.status === SpecStatuses.COMPLETED
     );
 }
@@ -85,7 +86,7 @@ function shouldShowApprove(
     // The final step closure is owned by `Mark Completed` (gated on
     // `isSpecDone(ctx)`). Approve here would surface a duplicate
     // "Complete" button before status actually flips.
-    if (step === stepList[stepList.length - 1] || step === 'implement') return false;
+    if (step === stepList[stepList.length - 1]) return false;
     
     // Approve must target the spec's actual current step. When the user
     // navigates backward via the stepper, dispatching the next step from
@@ -95,8 +96,17 @@ function shouldShowApprove(
     const entry = stepHistory[step];
     if (!entry?.startedAt) return false;
     
-    const idx = stepList.indexOf(step as StepName);
-    if (idx < 0) return false;
+    let idx = stepList.indexOf(step as StepName);
+    // If a custom/enhancement step like 'clarify' isn't in the workflow definition,
+    // fallback to its position in the universal STEP_NAMES to allow progression.
+    if (idx < 0) {
+        idx = STEP_NAMES.indexOf(step as StepName);
+        if (idx < 0) return false;
+        
+        // In fallback mode, we just ensure it's not the very last possible step
+        if (!entry.completedAt) return true;
+        return idx < STEP_NAMES.length - 1;
+    }
     
     // Any later step started → workflow has moved past this tab.
     for (let i = idx + 1; i < stepList.length; i++) {
@@ -120,8 +130,22 @@ export function getApproveLabel(
     workflowSteps: WorkflowStepConfig[] | undefined
 ): string {
     if (!workflowSteps || workflowSteps.length === 0) return 'Approve';
-    const idx = workflowSteps.findIndex(s => s.name === currentStep);
-    if (idx < 0) return 'Approve';
+    let idx = workflowSteps.findIndex(s => s.name === currentStep);
+    
+    // For out-of-band enhancement steps like 'clarify', infer the next workflow step 
+    // by finding the first configured step occurring after it in the master STEP_NAMES list
+    if (idx < 0) {
+        const masterIdx = STEP_NAMES.indexOf(currentStep);
+        if (masterIdx >= 0) {
+            for (let i = masterIdx + 1; i < STEP_NAMES.length; i++) {
+                const targetName = STEP_NAMES[i];
+                const found = workflowSteps.find(ws => ws.name === targetName);
+                if (found) return found.label ?? capitalize(found.name);
+            }
+        }
+        return 'Approve';
+    }
+    
     const next = workflowSteps[idx + 1];
     if (!next) return 'Complete';
     return next.label ?? capitalize(next.name);

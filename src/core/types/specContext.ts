@@ -11,7 +11,9 @@ export type StepName =
     | 'plan'
     | 'tasks'
     | 'analyze'
-    | 'implement';
+    | 'implement'
+    | 'checklist'
+    | 'git.validate';
 
 export const STEP_NAMES: StepName[] = [
     'specify',
@@ -20,6 +22,8 @@ export const STEP_NAMES: StepName[] = [
     'tasks',
     'analyze',
     'implement',
+    'checklist',
+    'git.validate',
 ];
 
 export type Status =
@@ -32,6 +36,8 @@ export type Status =
     | 'ready-to-implement'
     | 'implementing'
     | 'implemented'
+    | 'finalizing'
+    | 'finalized'
     | 'completed'
     | 'archived';
 
@@ -45,6 +51,8 @@ export const STATUSES: Status[] = [
     'ready-to-implement',
     'implementing',
     'implemented',
+    'finalizing',
+    'finalized',
     'completed',
     'archived',
 ];
@@ -245,7 +253,11 @@ export interface ViewerState {
 /** Canonical list of substep names used by Companion prompts. */
 export const CANONICAL_SUBSTEPS = {
     specify: ['outline', 'validate-checklist'],
+    clarify: [],
     plan: ['research', 'design'],
     tasks: ['generate'],
+    analyze: [],
     implement: ['run-tests'],
+    checklist: [],
+    'git.validate': [],
 } as const;

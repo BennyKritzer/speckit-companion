@@ -189,6 +189,24 @@ describe('validateWorkflow supportedAiProviders', () => {
     });
 });
 
+describe('getWorkflow', () => {
+    it('should return the default workflow with all 8 steps', () => {
+        mockGetConfig.mockReturnValue([]);
+        const result = getWorkflow('speckit');
+        expect(result?.steps).toHaveLength(8);
+        expect(result?.steps?.map(s => s.name)).toEqual([
+            'specify',
+            'clarify',
+            'plan',
+            'tasks',
+            'analyze',
+            'implement',
+            'checklist',
+            'git.validate'
+        ]);
+    });
+});
+
 describe('getWorkflow resolves regardless of active provider', () => {
     beforeEach(() => {
         jest.clearAllMocks();

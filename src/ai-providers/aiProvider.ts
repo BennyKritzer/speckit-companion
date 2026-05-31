@@ -151,6 +151,7 @@ export interface AIOptions {
     agent?: string;
     continue?: boolean;
     autoExecute?: boolean;
+    specDir?: string;
 }
 
 /**
@@ -158,6 +159,13 @@ export interface AIOptions {
  * Implementations can support different AI CLI tools (Claude Code, Gemini CLI, etc.)
  */
 export interface IAIProvider {
+    /**
+     * Determines whether the provider handles tracking its own execution lifecycle 
+     * instead of relying on the generic external terminal tracker in SpecKit.
+     * When true, the core extension does not tie Spec step completion to terminal exiting.
+     */
+    readonly managesOwnLifecycle?: boolean;
+
     /**
      * The name of the AI provider (e.g., "Claude Code", "Gemini CLI")
      */
@@ -398,6 +406,25 @@ export const PROVIDER_PATHS: Record<AIProviderType, ProviderPaths> = {
         commandFormat: 'dot',
         quickPickIcon: '$(comment-discussion)',
         quickPickDescription: "Route prompts to the host editor's built-in AI chat (Copilot / Cursor / Windsurf)",
+        supportsInteractivePermissions: true,
+        autoApproveFlag: '',
+    },
+    [AIProviders.ACP]: {
+        steeringFile: '',
+        globalSteeringFile: null,
+        steeringDir: '',
+        steeringPattern: '',
+        agentsDir: '',
+        agentsPattern: '',
+        skillsDir: '',
+        skillsPattern: '',
+        mcpConfigPath: '',
+        configDir: '',
+        supportsHooks: true,
+        displayName: 'ACP Provider',
+        commandFormat: 'dot',
+        quickPickIcon: '$(console)',
+        quickPickDescription: "Connects natively via Agent Client Protocol",
         supportsInteractivePermissions: true,
         autoApproveFlag: '',
     },

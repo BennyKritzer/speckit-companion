@@ -8,7 +8,7 @@ import {
     IDLE_GAP_CAP_MS,
 } from '../../relativeTime';
 
-const STEP_ORDER = ['specify', 'clarify', 'plan', 'tasks', 'analyze', 'implement'];
+const STEP_ORDER = ['specify', 'clarify', 'plan', 'tasks', 'analyze', 'implement', 'checklist', 'git.validate'];
 const KNOWN_ACTORS = new Set(['extension', 'cli', 'sdd', 'ai', 'user']);
 
 interface StepGroup {
