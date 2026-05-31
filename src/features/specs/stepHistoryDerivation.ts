@@ -170,16 +170,15 @@ export function deriveStepHistory(
         const lastOwn = g.transitions[g.transitions.length - 1];
         const lastOwnIsCompletion = lastOwn?.kind === 'complete' && lastOwn?.substep == null;
 
-        if (g.nextStepFirstIdx !== -1) {
-            // A later step exists in transitions — that step's first transition
-            // is this step's real boundary. Index refers to the de-duplicated
-            // array that `groupStepsInOrder` walked.
-            completedAt = deduped[g.nextStepFirstIdx].at;
-        } else if (lastOwnIsCompletion) {
-            // No later step yet, but this step has a real completion entry —
-            // honor it (covers `setStepCompleted` calls before the user has
-            // clicked the next-phase button).
+        if (lastOwnIsCompletion) {
+            // This step has a real completion entry — honor it.
+            // This prevents idle gaps from artificially inflating the step's duration
+            // before the next step officially starts.
             completedAt = lastOwn.at;
+        } else if (g.nextStepFirstIdx !== -1) {
+            // A later step exists in transitions, but no clear completion for this step.
+            // Fallback to the next step's start.
+            completedAt = deduped[g.nextStepFirstIdx].at;
         } else if (isLastSeen && isCurrent && isTerminal) {
             // Most recently seen step, currentStep matches, AND the spec is in
             // a terminal status → finalize to this step's last real transition

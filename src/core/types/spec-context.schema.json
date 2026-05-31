@@ -12,7 +12,7 @@
     "selectedAt": { "type": "string", "format": "date-time" },
     "currentStep": {
       "type": "string",
-      "enum": ["specify", "clarify", "plan", "tasks", "analyze", "implement"]
+      "enum": ["specify", "clarify", "plan", "tasks", "analyze", "implement", "checklist", "git.validate"]
     },
     "status": {
       "type": "string",
@@ -20,7 +20,9 @@
         "draft", "specifying", "specified",
         "planning", "planned",
         "tasking", "ready-to-implement",
-        "implementing", "implemented", "completed", "archived"
+        "implementing", "implemented",
+        "finalizing", "finalized",
+        "completed", "archived"
       ]
     },
     "history": {
@@ -62,7 +64,7 @@
       "properties": {
         "step": {
           "type": "string",
-          "enum": ["specify", "clarify", "plan", "tasks", "analyze", "implement"]
+          "enum": ["specify", "clarify", "plan", "tasks", "analyze", "implement", "checklist", "git.validate"]
         },
         "substep": { "type": ["string", "null"] },
         "kind": { "type": "string", "enum": ["start", "complete"] },
@@ -72,7 +74,7 @@
           "properties": {
             "step": {
               "type": ["string", "null"],
-              "enum": ["specify", "clarify", "plan", "tasks", "analyze", "implement", null]
+              "enum": ["specify", "clarify", "plan", "tasks", "analyze", "implement", "checklist", "git.validate", null]
             },
             "substep": { "type": ["string", "null"] }
           }

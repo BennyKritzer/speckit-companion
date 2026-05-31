@@ -43,10 +43,10 @@ const SPEC_CONTEXT_SCHEMA = [
     '    "specName":    { "type": "string" },',
     '    "branch":      { "type": "string" },',
     '    "selectedAt":  { "type": "string", "format": "date-time" },',
-    '    "currentStep": { "enum": ["specify","clarify","plan","tasks","analyze","implement"] },',
+    '    "currentStep": { "enum": ["specify","clarify","plan","tasks","analyze","implement","checklist","git.validate"] },',
     '    "status":      { "enum": ["draft","specifying","specified","planning","planned",',
     '                              "tasking","ready-to-implement","implementing","implemented",',
-    '                              "completed","archived"] },',
+    '                              "finalizing","finalized","completed","archived"] },',
     '    "history": {',
     '      "type": "array",',
     '      "items": {',
@@ -81,9 +81,9 @@ const SPEC_CONTEXT_SCHEMA = [
 ].join('\n');
 
 const STATUS_LIFECYCLE = [
-    'Canonical statuses: draft → specifying → specified → planning → planned → tasking → ready-to-implement → implementing → implemented → completed.',
-    'When starting a step: set status to the in-progress form (specifying, planning, tasking, implementing).',
-    'When completing a step: set status to the completed form (specified, planned, ready-to-implement, implemented).',
+    'Canonical statuses: draft → specifying → specified → planning → planned → tasking → ready-to-implement → implementing → implemented → finalizing → finalized → completed.',
+    'When starting a step: set status to the in-progress form (specifying, planning, tasking, implementing, finalizing).',
+    'When completing a step: set status to the completed form (specified, planned, ready-to-implement, implemented, finalized).',
     '',
     'IMPORTANT — the implement step completes at "implemented", NOT "completed".',
     '"completed" is the user\'s final approval gate (their Mark-Completed click in the',
@@ -116,24 +116,32 @@ function nowUtc(): string {
 
 const COMPLETED_STATUS_BY_STEP: Record<PromptStep, string> = {
     specify: 'specified',
-    plan: 'planned',
-    tasks: 'ready-to-implement',
-    // F8: implement ends at `implemented` (NOT `completed`). The final
-    // `completed` status is the user's explicit Mark-Completed click in
-    // the viewer — keeps closure under the user's control even when
-    // manual verification steps remain (build/test/eyeball UI).
-    implement: 'implemented',
-};
+    clarify: 'specified',
+        plan: 'planned',
+        tasks: 'ready-to-implement',
+        analyze: 'ready-to-implement',
+        // F8: implement ends at `implemented` (NOT `completed`). The final
+        // `completed` status is the user's explicit Mark-Completed click in
+        // the viewer — keeps closure under the user's control even when
+        // manual verification steps remain (build/test/eyeball UI).
+        implement: 'implemented',
+        checklist: 'finalized',
+        'git.validate': 'finalized',
+    };
 
-const DONE_PHRASE_BY_STEP: Record<PromptStep, string> = {
-    specify: 'Done specifying',
-    plan: 'Done planning',
-    tasks: 'Done creating tasks',
-    implement: 'Done implementing',
-};
+    const DONE_PHRASE_BY_STEP: Record<PromptStep, string> = {
+        specify: 'Done specifying',
+        clarify: 'Done clarifying',
+        plan: 'Done planning',
+        tasks: 'Done creating tasks',
+        analyze: 'Done analyzing',
+        implement: 'Done implementing',
+        checklist: 'Done with checklist',
+        'git.validate': 'Done validating git',
+    };
 
-function renderPreamble(step: PromptStep, specDir: string): string {
-    const substeps = CANONICAL_SUBSTEPS[step].join(', ');
+    function renderPreamble(step: PromptStep, specDir: string): string {
+        const substeps = CANONICAL_SUBSTEPS[step].join(', ');
     const target = specDir ? `${specDir}/.spec-context.json` : '<specDir>/.spec-context.json';
     const completedStatus = COMPLETED_STATUS_BY_STEP[step];
     const donePhrase = DONE_PHRASE_BY_STEP[step];

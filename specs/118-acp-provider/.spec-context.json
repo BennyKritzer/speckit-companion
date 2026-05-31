@@ -1,0 +1,17 @@
+{
+  "workflow": "full-cycle",
+  "specName": "118-acp-provider",
+  "branch": "118-acp-provider",
+  "selectedAt": "2026-05-31T23:02:16.855Z",
+  "currentStep": "specify",
+  "status": "completed",
+  "history": [
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-05-31T23:14:42.937Z"
+    }
+  ]
+}

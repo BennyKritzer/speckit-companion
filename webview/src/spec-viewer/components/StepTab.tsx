@@ -40,13 +40,12 @@ export function StepTab(props: StepTabProps) {
 
     const phase = doc.type;
     const stepDocExists = doc.exists;
-    const exists = stepDocExists || !!hasRelatedChildren;
+    const exists = stepDocExists || !!hasRelatedChildren || !!doc.actionOnly;
     const isViewing = phase === currentDoc || (isViewingRelatedDoc && phase === parentPhaseForRelated);
-    const isLastStep = index === totalSteps - 1;
-    const inProgress = isLastStep && currentStep === 'implement' && taskCompletionPercent < 100;
-    const isStale = stalenessMap?.[phase]?.isStale ?? false;
-
     const stepName = DOC_TO_STEP[phase] ?? phase;
+    const isImplementTab = stepName === 'implement';
+    const inProgress = isImplementTab && currentStep === 'implement' && taskCompletionPercent <= 100;
+    const isStale = stalenessMap?.[phase]?.isStale ?? false;
     // `activeStep` and `stepHistory` are keyed by step name (e.g. 'specify'),
     // not doc type (e.g. 'spec'). Compare against the mapped name so the
     // in-flight visual fires correctly during specifying / planning / etc.

@@ -16,7 +16,11 @@ export function App({ specStatus }: AppProps) {
     const contentRef = useRef<HTMLDivElement>(null);
     const html = markdownHtml.value;
     const ns = navState.value;
-    const showActivity = activityVisible.value;
+    
+    // Automatically force the activity panel visible if the currently viewed document is an actionOnly phase
+    const isActionOnlyDoc = ns?.coreDocs.find(d => d.type === ns.currentDoc)?.actionOnly ?? false;
+    const showActivity = activityVisible.value || isActionOnlyDoc;
+    
     const reviewComments = viewerState.value?.reviewComments;
     const [hasMountedActivity, setHasMountedActivity] = useState(false);
     useEffect(() => {

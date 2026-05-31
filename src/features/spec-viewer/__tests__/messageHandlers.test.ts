@@ -234,7 +234,7 @@ describe('messageHandlers - clarify (workflow commands)', () => {
         await handler({ type: 'clarify', command: '/speckit.review' } as any);
 
         expect(deps.executeInTerminal).toHaveBeenCalledWith(
-            expect.stringContaining('/speckit.review')
+            expect.stringContaining('/speckit.review'), undefined, expect.any(Object)
         );
     });
 
@@ -257,7 +257,7 @@ describe('messageHandlers - clarify (workflow commands)', () => {
 
         expect(getWorkflowCommands).toHaveBeenCalledWith('sdd');
         expect(deps.executeInTerminal).toHaveBeenCalledWith(
-            expect.stringContaining('/sdd:auto')
+            expect.stringContaining('/sdd:auto'), undefined, expect.any(Object)
         );
     });
 
@@ -305,7 +305,7 @@ describe('messageHandlers - clarify (workflow commands)', () => {
         await handler({ type: 'clarify' } as any);
 
         expect(deps.executeInTerminal).toHaveBeenCalledWith(
-            expect.stringContaining('/sdd:auto')
+            expect.stringContaining('/sdd:auto'), undefined, expect.any(Object)
         );
     });
 });
@@ -347,7 +347,7 @@ describe('messageHandlers - clarify (built-in optional commands)', () => {
         await handler({ type: 'clarify', command: 'speckit.clarify' } as any);
 
         expect(deps.executeInTerminal).toHaveBeenCalledWith(
-            expect.stringContaining('speckit.clarify')
+            expect.stringContaining('speckit.clarify'), undefined, expect.any(Object)
         );
         expect(vscode.commands.executeCommand).not.toHaveBeenCalledWith('speckit.clarify', SPEC_DIR);
     });

@@ -40,8 +40,7 @@ export function generateCompactNav(
         const exists = stepDocExists || relatedDocs.some(d => d.parentStep === phase);
         const isViewing = phase === currentDocType ||
             (isViewingRelatedDoc && relatedDocs.some(d => d.type === currentDocType && d.parentStep === phase));
-        const isLastStep = i === coreDocs.length - 1;
-        const inProgress = isLastStep && taskCompletionPercent > 0 && taskCompletionPercent < 100;
+        const inProgress = phase === 'implement' && taskCompletionPercent > 0 && taskCompletionPercent <= 100;
 
         const isStale = stalenessMap?.[phase]?.isStale ?? false;
 

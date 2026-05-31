@@ -22,6 +22,7 @@ import {
 } from './specContextWriter';
 import { Status } from '../../core/types/specContext';
 import { deriveSpecName } from './specContextManager';
+import { lastEntryIsCompletionFor } from './historyHelpers';
 
 let outputChannel: vscode.OutputChannel | undefined;
 
@@ -72,7 +73,12 @@ export async function completeStep(
     try {
         await updateSpecContext(
             specDir,
-            ctx => setStepCompleted(ctx, step, by),
+            ctx => {
+                if (lastEntryIsCompletionFor(ctx.history, step)) {
+                    return ctx;
+                }
+                return setStepCompleted(ctx, step, by);
+            },
             buildFallback(specDir, step)
         );
     } catch (err) {
@@ -168,6 +174,9 @@ function deriveInProgressStatus(step: StepName): Status {
             return 'tasking';
         case 'implement':
             return 'implementing';
+        case 'checklist':
+        case 'git.validate':
+            return 'finalizing';
     }
 }
 

@@ -639,10 +639,15 @@ export class SpecViewerProvider {
         stepBadges,
       );
       const currentPhase = getPhaseNumber(doc?.type || CORE_DOCUMENTS.SPEC);
-      const taskCompletionPercent = calculateTaskCompletion(
-        tasksContent,
-        CORE_DOCUMENTS.TASKS,
-      );
+      let taskCompletionPercent = calculateTaskCompletion(tasksContent, CORE_DOCUMENTS.TASKS);
+      if (
+        (featureCtx?.status as string) === 'implemented' ||
+        (featureCtx?.status as string) === 'finalized' ||
+        (featureCtx?.status as string) === SpecStatuses.COMPLETED ||
+        derivedStepHistory?.['implement']?.completedAt != null
+      ) {
+        taskCompletionPercent = 100;
+      }
 
       // Update state
       instance.state = {
@@ -912,11 +917,34 @@ export class SpecViewerProvider {
         }
       }
 
+      const changeRoot = instance.state.changeRoot;
+      let featureCtx: FeatureWorkflowContext | undefined;
+      try {
+        featureCtx = await getFeatureWorkflow(specDirectory, changeRoot);
+      } catch (err) {
+        this.outputChannel.appendLine(
+          `[SpecViewer] sendContentUpdateMessage: getFeatureWorkflow failed — ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+
+      const derivedStepHistory = featureCtx
+        ? deriveStepHistory(
+            (featureCtx.history ?? []) as any,
+            featureCtx.currentStep as StepName | undefined,
+            (featureCtx.status as string) as import("../../core/types/specContext").Status | undefined,
+          )
+        : {};
+
       // Calculate task completion for tasks doc
-      const taskCompletionPercent = calculateTaskCompletion(
-        tasksContent,
-        CORE_DOCUMENTS.TASKS,
-      );
+      let taskCompletionPercent = calculateTaskCompletion(tasksContent, CORE_DOCUMENTS.TASKS);
+      if (
+        (featureCtx?.status as string) === 'implemented' ||
+        (featureCtx?.status as string) === 'finalized' ||
+        (featureCtx?.status as string) === SpecStatuses.COMPLETED ||
+        derivedStepHistory?.['implement']?.completedAt != null
+      ) {
+        taskCompletionPercent = 100;
+      }
 
       // Build navigation state
       const coreDocs = instance.state.availableDocuments.filter(
@@ -954,18 +982,6 @@ export class SpecViewerProvider {
         }
       }
 
-      // Determine spec status for lifecycle buttons. Tolerate transient
-      // read failures so a render pass during a concurrent CLI write
-      // degrades to "active" rather than crashing the whole update.
-      const changeRoot = instance.state.changeRoot;
-      let featureCtx: FeatureWorkflowContext | undefined;
-      try {
-        featureCtx = await getFeatureWorkflow(specDirectory, changeRoot);
-      } catch (err) {
-        this.outputChannel.appendLine(
-          `[SpecViewer] sendContentUpdateMessage: getFeatureWorkflow failed — ${err instanceof Error ? err.message : String(err)}`,
-        );
-      }
       let specStatus: string;
       if (featureCtx?.status === SpecStatuses.ARCHIVED || featureCtx?.currentStep === SpecStatuses.ARCHIVED) {
         specStatus = SpecStatuses.ARCHIVED;
@@ -983,16 +999,6 @@ export class SpecViewerProvider {
       // Compute staleness for workflow documents
       const stalenessMap = await computeStaleness(instance.state.availableDocuments);
 
-      // Per-step timing is derived from history[] in-memory (the on-disk
-      // file no longer carries stepHistory). Compute once and reuse for the
-      // notifier, the running-step probe, and the nav bar.
-      const derivedStepHistory = featureCtx
-        ? deriveStepHistory(
-            (featureCtx.history ?? []) as any,
-            featureCtx.currentStep as StepName | undefined,
-            featureCtx.status as Status | undefined,
-          )
-        : undefined;
       const notifierCtx: NotifierContext | null = derivedStepHistory
         ? { stepHistory: derivedStepHistory }
         : null;

@@ -56,7 +56,7 @@ export function calculatePhases(
 
     for (let i = 0; i < coreDocs.length; i++) {
         const doc = coreDocs[i];
-        const phaseNum = (i + 1) as 1 | 2 | 3 | 4;
+        const phaseNum = i + 1;
         const isTasksLike = doc.type === CORE_DOCUMENTS.TASKS;
         const taskCompletion = isTasksLike && currentDocType === doc.type
             ? calculateTaskCompletion(content, doc.type)
@@ -77,7 +77,7 @@ export function calculatePhases(
     }
 
     // Add Done phase
-    const donePhase = (coreDocs.length + 1) as 1 | 2 | 3 | 4;
+    const donePhase = coreDocs.length + 1;
     phases.push({
         phase: donePhase,
         label: 'Done',
@@ -93,11 +93,11 @@ export function calculatePhases(
  * Get phase number from document type.
  * When `stepNames` is provided, looks up position dynamically.
  */
-export function getPhaseNumber(docType: DocumentType, stepNames?: string[]): 1 | 2 | 3 | 4 {
+export function getPhaseNumber(docType: DocumentType, stepNames?: string[]): number {
     if (stepNames) {
         const idx = stepNames.indexOf(docType);
         if (idx >= 0) {
-            return (idx + 1) as 1 | 2 | 3 | 4;
+            return idx + 1;
         }
     }
     if (docType === CORE_DOCUMENTS.SPEC) return 1;
@@ -235,6 +235,9 @@ const CANONICAL_STATUS_LABELS: Record<string, string> = {
     tasking: 'CREATING TASKS...',
     'ready-to-implement': 'READY TO IMPLEMENT',
     implementing: 'IMPLEMENTING...',
+    implemented: 'IMPLEMENT COMPLETE',
+    finalizing: 'FINALIZING...',
+    finalized: 'STEPS COMPLETE',
     completed: 'COMPLETED',
     archived: 'ARCHIVED',
 };

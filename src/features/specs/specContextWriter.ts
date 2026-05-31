@@ -225,6 +225,9 @@ function deriveInProgressStatus(step: StepName): SpecContext['status'] {
             return 'tasking';
         case 'implement':
             return 'implementing';
+        case 'checklist':
+        case 'git.validate':
+            return 'finalizing';
     }
 }
 
@@ -245,6 +248,9 @@ function deriveCompletedStatus(step: StepName): SpecContext['status'] {
             // `completed`. That final approval gate keeps the user in
             // control of when the spec is truly closed.
             return 'implemented';
+        case 'checklist':
+        case 'git.validate':
+            return 'finalized';
     }
 }
 

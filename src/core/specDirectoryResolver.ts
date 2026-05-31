@@ -393,3 +393,19 @@ export function hasDuplicateNames(specs: SpecDirectoryInfo[]): Set<string> {
     }
     return duplicates;
 }
+export async function getActiveSpecDir(): Promise<string | undefined> {
+    const activeEditor = vscode.window.activeTextEditor;
+    if (!activeEditor) {
+        return undefined;
+    }
+    const filePath = activeEditor.document.fileName;
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+        return undefined;
+    }
+    const specRelPath = isInsideSpecDirectory(filePath, workspaceFolder.uri.fsPath);
+    if (specRelPath) {
+        return require('path').join(workspaceFolder.uri.fsPath, specRelPath);
+    }
+    return undefined;
+}
