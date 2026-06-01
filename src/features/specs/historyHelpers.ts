@@ -27,7 +27,7 @@ export function lastEntryIsCompletionFor(
         const e = history[i];
         if (e.step !== step) continue;
         if (e.substep != null) return false;
-        if (e.kind === 'complete') return true;
+        if (e.kind === 'complete' || e.kind === 'skip') return true;
         if (e.kind == null && e.from?.step === step) return true;
         return false;
     }

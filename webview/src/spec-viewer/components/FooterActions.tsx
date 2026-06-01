@@ -154,6 +154,8 @@ export function FooterActions({ initialSpecStatus }: FooterActionsProps) {
             'approve',
             'reactivate',
             'archive',
+              'skip',
+              'unskip',
             'complete',
             'start',
         ]);

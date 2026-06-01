@@ -39,6 +39,8 @@ export interface WorkflowStepConfig {
     name: string;
     /** Display label (e.g., "Specify", "Plan"). Defaults to capitalized name */
     label?: string;
+    /** Indicates if the step is optional and can be skipped */
+    optional?: boolean;
     /** Command to execute for this step (e.g., "speckit.specify", "sdd.plan") */
     command: string;
     /** Primary output file (e.g., "spec.md"). Defaults to `{name}.md` */

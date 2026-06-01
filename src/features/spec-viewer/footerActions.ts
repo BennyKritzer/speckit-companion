@@ -53,12 +53,23 @@ function isTerminal(status: string | undefined): boolean {
  * only appear once the build is done and the user is at the final
  * approval gate.
  */
-function isSpecDone(ctx: SpecContext): boolean {
-    return (
+function isSpecDone(ctx: SpecContext, stepHistory?: DerivedHistory): boolean {
+    if (
         ctx.status === 'implemented' ||
         ctx.status === 'finalized' ||
         ctx.status === SpecStatuses.COMPLETED
-    );
+    ) {
+        return true;
+    }
+
+    // Special case for implement phase: once all tasks are checked,
+    // the spec is "done" enough to show the final closure controls.
+    const implement = stepHistory?.['implement'];
+    if (implement?.substeps && implement.substeps.length > 0) {
+        return implement.substeps.every(s => !!s.completedAt);
+    }
+
+    return false;
 }
 
 /**
@@ -86,7 +97,7 @@ function shouldShowApprove(
     // The final step closure is owned by `Mark Completed` (gated on
     // `isSpecDone(ctx)`). Approve here would surface a duplicate
     // "Complete" button before status actually flips.
-    if (step === stepList[stepList.length - 1]) return false;
+    // if (step === stepList[stepList.length - 1]) return false;
     
     // Approve must target the spec's actual current step. When the user
     // navigates backward via the stepper, dispatching the next step from
@@ -161,8 +172,8 @@ export const FOOTER_ACTIONS: FooterAction[] = [
         label: 'Archive',
         scope: 'spec',
         tooltip: 'Archive this spec',
-        visibleWhen: (ctx) =>
-            ctx.status !== SpecStatuses.ARCHIVED && isSpecDone(ctx),
+        visibleWhen: (ctx, step, stepHistory) =>
+            ctx.status !== SpecStatuses.ARCHIVED && isSpecDone(ctx, stepHistory),
     },
     {
         id: FooterActionIds.REACTIVATE,
@@ -177,7 +188,7 @@ export const FOOTER_ACTIONS: FooterAction[] = [
         label: 'Mark Completed',
         scope: 'spec',
         tooltip: 'Mark this spec as completed',
-        visibleWhen: (ctx) => !isTerminal(ctx.status) && isSpecDone(ctx),
+        visibleWhen: (ctx, step, stepHistory) => !isTerminal(ctx.status) && isSpecDone(ctx, stepHistory),
     },
     {
         id: FooterActionIds.REGENERATE,

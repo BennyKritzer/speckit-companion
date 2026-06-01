@@ -11,7 +11,6 @@
 .activity-panel {
     padding: var(--space-5) var(--space-6);
     overflow-y: auto;
-    max-width: 880px;
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
@@ -652,4 +651,24 @@
 .comment-text {
     flex: 1 1 auto;
     min-width: 0;
+}
+
+.phases-step.is-skipped::before {
+    background: var(--border);
+}
+
+.phases-step.is-skipped .phases-step__heading::before {
+    background: var(--border);
+}
+
+.phases-step.is-skipped .phases-step__name {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.phases-step.is-skipped .phases-step__time,
+.phases-step.is-skipped .phases-event {
+    color: var(--text-muted);
+    opacity: 0.7;
 }

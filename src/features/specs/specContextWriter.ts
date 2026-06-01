@@ -184,6 +184,22 @@ export function setStepCompleted(
     );
 }
 
+export function setStepSkipped(
+    ctx: SpecContext,
+    step: StepName,
+    by: HistoryEntryBy,
+    at: string = new Date().toISOString()
+): SpecContext {
+    const entry: HistoryEntry = { step, substep: null, kind: 'skip', by, at };
+    return appendHistory(
+        {
+            ...ctx,
+            status: deriveCompletedStatus(step),
+        },
+        entry
+    );
+}
+
 export function setSubstepStarted(
     ctx: SpecContext,
     step: StepName,

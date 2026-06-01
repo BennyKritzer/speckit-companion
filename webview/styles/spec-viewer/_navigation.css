@@ -254,3 +254,13 @@
     font-style: italic;
 }
 
+
+.step-tab.skipped .step-label {
+    text-decoration: line-through;
+    color: var(--vscode-disabledForeground);
+    font-style: italic;
+}
+.step-tab.skipped .step-status {
+    color: var(--vscode-disabledForeground);
+    opacity: 0.7;
+}

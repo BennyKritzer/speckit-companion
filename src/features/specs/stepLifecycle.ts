@@ -16,6 +16,7 @@ import {
     appendTransition,
     setStepStarted,
     setStepCompleted,
+    setStepSkipped,
     setSubstepStarted,
     setSubstepCompleted,
     updateSpecContext,
@@ -194,5 +195,26 @@ export async function completeSubstep(
         );
     } catch (err) {
         logError(`completeSubstep(${path.basename(specDir)}, ${step}/${substep})`, err);
+    }
+}
+
+export async function skipStep(
+    specDir: string,
+    step: StepName,
+    by: TransitionBy
+): Promise<void> {
+    try {
+        await updateSpecContext(
+            specDir,
+            ctx => {
+                if (lastEntryIsCompletionFor(ctx.history, step)) {
+                    return ctx;
+                }
+                return setStepSkipped(ctx, step, by);
+            },
+            buildFallback(specDir, step)
+        );
+    } catch (err) {
+        logError(`skipStep(${path.basename(specDir)}, ${step})`, err);
     }
 }
