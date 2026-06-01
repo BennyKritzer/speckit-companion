@@ -1,0 +1,215 @@
+{
+  "workflow": "speckit",
+  "specName": "Optional Skippable Steps",
+  "branch": "119-optional-skippable-steps",
+  "selectedAt": "2026-05-31T23:31:57.358Z",
+  "currentStep": "git.validate",
+  "status": "finalized",
+  "history": [
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": null,
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-05-31T23:31:57.358Z"
+    },
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-05-31T23:35:44Z"
+    },
+    {
+      "step": "clarify",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "specify",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-05-31T23:36:48.258Z"
+    },
+    {
+      "step": "clarify",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-05-31T23:40:53Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "clarify",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-05-31T23:41:36.755Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "clarify",
+        "substep": null
+      },
+      "by": "ai",
+      "at": "2026-05-31T23:42:02Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-05-31T23:44:10Z"
+    },
+    {
+      "step": "tasks",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "plan",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-05-31T23:45:06.741Z"
+    },
+    {
+      "step": "tasks",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-05-31T23:48:06Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "tasks",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-05-31T23:48:42.151Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-05-31T23:52:09.062Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "analyze",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-05-31T23:52:16.642Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-01T01:01:39.054Z"
+    },
+    {
+      "step": "checklist",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "implement",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-06-01T01:01:39.055Z"
+    },
+    {
+      "step": "checklist",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-01T01:05:36.750Z"
+    },
+    {
+      "step": "git.validate",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "checklist",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-06-01T01:05:36.751Z"
+    },
+    {
+      "step": "git.validate",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-01T01:08:06.512Z"
+    }
+  ],
+  "task_summaries": {
+    "T001": {
+      "status": "DONE",
+      "did": "Completed T001"
+    },
+    "T002": {
+      "status": "DONE",
+      "did": "Completed T002"
+    },
+    "T003": {
+      "status": "DONE",
+      "did": "Completed T003"
+    },
+    "T004": {
+      "status": "DONE",
+      "did": "Completed T004"
+    },
+    "T005": {
+      "status": "DONE",
+      "did": "Completed T005"
+    },
+    "T006": {
+      "status": "DONE",
+      "did": "Completed T006"
+    },
+    "T007": {
+      "status": "DONE",
+      "did": "Completed T007"
+    },
+    "T007b": {
+      "status": "DONE",
+      "did": "Completed T007b"
+    },
+    "T008": {
+      "status": "DONE",
+      "did": "Completed T008"
+    },
+    "T009": {
+      "status": "DONE",
+      "did": "Completed T009"
+    },
+    "T010": {
+      "status": "DONE",
+      "did": "Completed T010"
+    },
+    "T011": {
+      "status": "DONE",
+      "did": "Completed T011"
+    }
+  }
+}

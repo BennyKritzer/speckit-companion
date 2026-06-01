@@ -26,7 +26,7 @@ export interface StepTabProps {
     parentPhaseForRelated: string;
     activeStep?: string | null;
     currentStep?: string | null;
-    stepHistory?: Record<string, { startedAt?: string; completedAt?: string | null }>;
+    stepHistory?: Record<string, { startedAt?: string; completedAt?: string | null; skippedAt?: string | null }>;
     stalenessMap?: StalenessMap;
     hasRelatedChildren?: boolean;
     runningStepIndex?: number | null;
@@ -61,11 +61,15 @@ export function StepTab(props: StepTabProps) {
     const vsCompleted = (vs?.highlights?.includes(stepName) ?? false) && (stepDocExists || !!doc.actionOnly);
     const vsSubstep = vs?.activeSubstep?.step === stepName ? vs.activeSubstep.name : null;
 
-    // Collapse to four canonical states (R007, R008).
-    // Precedence: locked > in-flight > done > current; default = untouched.
-    let canonicalState: 'current' | 'done' | 'in-flight' | 'locked' | null = null;
+    // Collapse to canonical states (R007, R008).
+    // Precedence: locked > skipped > in-flight > done > current; default = untouched.
+    let canonicalState: 'current' | 'done' | 'in-flight' | 'locked' | 'skipped' | null = null;
+    const runEntry = stepHistory?.[stepName];
+
     if (isLocked) {
         canonicalState = 'locked';
+    } else if (runEntry?.skippedAt) {
+        canonicalState = 'skipped';
     } else if (isWorking || inProgress) {
         canonicalState = 'in-flight';
     } else if (stepDocExists || vsCompleted) {
@@ -84,7 +88,7 @@ export function StepTab(props: StepTabProps) {
     // Status content: percentage in-flight, ✓ done, empty otherwise.
     const statusIcon = canonicalState === 'in-flight' && inProgress
         ? `${taskCompletionPercent}%`
-        : (canonicalState === 'done' ? '✓' : '');
+        : ((canonicalState === 'done' || canonicalState === 'skipped') ? '✓' : '');
 
     const baseTooltip = STEP_TOOLTIPS[phase] ?? doc.label;
     const tooltip = isLocked
@@ -95,7 +99,6 @@ export function StepTab(props: StepTabProps) {
     // last-step `inProgress` case, which is driven by task-completion percent.
     // Use the mapped stepName (matches activeStep / stepHistory keys),
     // not the doc-type phase.
-    const runEntry = stepHistory?.[stepName];
     const runningStartedAt = canonicalState === 'in-flight'
         && runEntry?.startedAt
         && !runEntry.completedAt

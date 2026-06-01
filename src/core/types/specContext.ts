@@ -74,6 +74,7 @@ export interface SubstepEntry {
 export interface StepHistoryEntry {
     startedAt: string;
     completedAt: string | null;
+    skippedAt?: string | null;
     substeps?: SubstepEntry[];
 }
 
@@ -84,8 +85,8 @@ export interface HistoryEntryFrom {
 
 export type HistoryEntryBy = 'extension' | 'user' | 'cli' | 'sdd' | 'sdd-skill' | 'ai';
 
-/** Discriminates between a step/substep start and a step/substep completion. */
-export type HistoryEntryKind = 'start' | 'complete';
+/** Discriminates between a step/substep start and a step/substep completion or skip. */
+export type HistoryEntryKind = 'start' | 'complete' | 'skip';
 
 /**
  * A single entry in the append-only `history[]` log. Replaces the previous

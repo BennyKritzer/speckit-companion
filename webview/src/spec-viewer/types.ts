@@ -143,6 +143,7 @@ export interface HistoryEntry {
     from: HistoryEntryFrom;
     by: string;
     at: string;
+    kind?: 'complete' | 'skip' | 'other';
 }
 
 /** @deprecated Renamed to `HistoryEntryFrom`. */
@@ -159,6 +160,7 @@ export interface SubstepEntry {
 export interface StepHistoryEntry {
     startedAt: string;
     completedAt: string | null;
+    skippedAt?: string | null;
     /** Array on SDD specs, Record on speckit specs — normalize at consumer. */
     substeps?: SubstepEntry[] | Record<string, { startedAt: string; completedAt: string | null }>;
 }
@@ -244,6 +246,8 @@ export type ViewerToExtensionMessage =
     // Footer action messages
     | { type: 'editSource' }
     | { type: 'regenerate' }
+    | { type: 'skipStep' }
+    | { type: 'unskipStep'; stepName: string }
     | { type: 'approve' }
     | { type: 'clarify'; command?: string }
     | { type: 'footerAction'; id: string }

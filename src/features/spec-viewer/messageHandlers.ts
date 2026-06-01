@@ -27,6 +27,7 @@ import { updateSpecContext } from "../specs/specContextWriter";
 import { lastEntryIsCompletionFor } from "../specs/historyHelpers";
 import {
   completeStep,
+  skipStep,
   reactivate,
   setStatus,
   startStep,
@@ -114,6 +115,13 @@ export function createMessageHandlers(
       case "regenerate":
         await handleRegenerate(specDirectory, deps);
         break;
+      case "skipStep":
+        await handleSkipStep(specDirectory, deps);
+        break;
+      case "unskipStep":
+        await handleUnskipStep(specDirectory, deps, message.stepName);
+        break;
+
       case "approve":
         await handleApprove(specDirectory, deps);
         break;
@@ -212,6 +220,16 @@ export function createMessageHandlers(
               SpecStatuses.COMPLETED,
               deps,
             );
+            break;
+          case FooterActionIds.SKIP:
+            await handleSkipStep(specDirectory, deps);
+            break;
+          case FooterActionIds.UNSKIP:
+            // Unskip targets the current step naturally since it is active
+            const ctx = readSpecContextSync(specDirectory);
+            if (ctx?.currentStep) {
+              await handleUnskipStep(specDirectory, deps, ctx.currentStep);
+            }
             break;
           case FooterActionIds.REGENERATE:
             await handleRegenerate(specDirectory, deps);
@@ -1014,4 +1032,49 @@ async function dispatchDocRefinement(
   // history (no separate file). The viewer refreshes to show the new status.
   const ids = pending.map((c) => c.id);
   await persistCommentMutation(specDirectory, (c) => markApplied(c, ids), deps);
+}
+
+
+async function handleSkipStep(
+  specDirectory: string,
+  deps: MessageHandlerDependencies,
+): Promise<void> {
+  const instance = deps.getInstance(specDirectory);
+  if (!instance) return;
+
+  const ctx = readSpecContextSync(specDirectory);
+  const targetStep = ctx?.currentStep;
+
+  if (targetStep && isLifecycleStep(targetStep)) {
+    const alreadyComplete = lastEntryIsCompletionFor(
+      ctx?.history ?? [],
+      targetStep,
+    );
+    if (!alreadyComplete) {
+      await skipStep(specDirectory, targetStep as StepName, "extension");
+      
+      // Spec: "once skipped the button for the next step will show"
+      // We explicitly DO NOT advance currentStep here so the user has time to "Unskip"
+      // or optionally proceed by clicking the new Approve button.
+    }
+  }
+}
+
+async function handleUnskipStep(
+  specDirectory: string,
+  deps: MessageHandlerDependencies,
+  stepName: string
+): Promise<void> {
+  const instance = deps.getInstance(specDirectory);
+  if (!instance) return;
+
+  const ctx = readSpecContextSync(specDirectory);
+  if (!ctx) return;
+  
+  // Enforce unskip is only valid if we haven't started a subsequent step.
+  // Actually, if the step they want to unskip is STILL currentStep, we know we haven't advanced.
+  if (ctx.currentStep === stepName) {
+    // Append a 'start' event to override the 'skip'
+    await startStep(specDirectory, stepName as StepName, "extension");
+  }
 }

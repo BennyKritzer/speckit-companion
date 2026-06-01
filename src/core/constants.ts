@@ -295,6 +295,8 @@ export const FooterActionIds = {
     REGENERATE: 'regenerate',
     APPROVE: 'approve',
     SDD_AUTO: 'sdd-auto',
+    SKIP: 'skip',
+    UNSKIP: 'unskip',
 } as const;
 
 /**

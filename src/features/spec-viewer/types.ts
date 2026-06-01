@@ -372,6 +372,13 @@ export type ViewerToExtensionMessage =
           type: 'regenerate';
       }
     | {
+          type: 'skipStep';
+      }
+    | {
+          type: 'unskipStep';
+          stepName: string;
+      }
+    | {
           type: 'approve';
       }
     | {

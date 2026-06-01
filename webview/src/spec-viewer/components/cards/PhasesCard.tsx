@@ -15,6 +15,7 @@ interface StepGroup {
     step: string;
     startedAt: string;
     completedAt: string | null;
+    skippedAt: string | null;
     events: TimelineEventModel[];
 }
 
@@ -35,6 +36,7 @@ function buildGroups(stepHistory: ViewerState['stepHistory'], history: HistoryEn
             step,
             startedAt: entry.startedAt,
             completedAt: entry.completedAt ?? null,
+            skippedAt: entry.skippedAt ?? null,
             events: mergeStepEvents(step, entry, history, historyIndex),
         });
     }
@@ -48,6 +50,7 @@ function buildGroups(stepHistory: ViewerState['stepHistory'], history: HistoryEn
             step: t.step,
             startedAt: t.at,
             completedAt: null,
+            skippedAt: t.kind === 'skip' ? t.at : null,
             events: mergeStepEvents(t.step, undefined, history, historyIndex),
         });
     }
@@ -100,7 +103,7 @@ export function PhasesCard({ state }: PhasesCardProps) {
     const TERMINAL_STATUSES = new Set(['completed', 'archived']);
     const overallInFlight = overallEnd === null || !TERMINAL_STATUSES.has(state.status ?? '');
     const overallActiveMs = groups.reduce(
-        (sum, g) => sum + activeDurationMs(activityPoints(g)),
+        (sum, g) => sum + (g.skippedAt ? 0 : activeDurationMs(activityPoints(g))),
         0
     );
 
@@ -143,16 +146,16 @@ export function PhasesCard({ state }: PhasesCardProps) {
                 </div>
                 <div class="phases-track">
                     {groups.map(group => {
-                        const inFlight = group.completedAt === null;
+                        const inFlight = group.completedAt === null && !group.skippedAt;
                         // Elapsed = active time (idle gaps capped), not wall-clock.
-                        const duration = formatElapsed(activeDurationMs(activityPoints(group)));
+                        const duration = group.skippedAt ? 'skipped' : formatElapsed(activeDurationMs(activityPoints(group)));
                         const showStepDate =
                             new Date(group.startedAt).toDateString() !== specStartDay;
                         const events = dedupeEvents(group.events);
                         return (
                             <div
                                 key={group.step}
-                                class={`phases-step${inFlight ? ' is-in-flight' : ''}`}
+                                class={`phases-step${inFlight ? ' is-in-flight' : ''}${group.skippedAt ? ' is-skipped' : ''}`}
                                 data-step={group.step}
                             >
                                 <h4 class="phases-step__heading">

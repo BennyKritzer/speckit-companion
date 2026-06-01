@@ -168,13 +168,17 @@ export function deriveStepHistory(
         // If the most recent entry for this step is a completion, the step
         // is done even if currentStep is still pointed at it.
         const lastOwn = g.transitions[g.transitions.length - 1];
-        const lastOwnIsCompletion = lastOwn?.kind === 'complete' && lastOwn?.substep == null;
+        const lastOwnIsCompletion = (lastOwn?.kind === 'complete' || lastOwn?.kind === 'skip') && lastOwn?.substep == null;
+        let skippedAt: string | null = null;
 
         if (lastOwnIsCompletion) {
             // This step has a real completion entry — honor it.
             // This prevents idle gaps from artificially inflating the step's duration
             // before the next step officially starts.
             completedAt = lastOwn.at;
+            if (lastOwn.kind === 'skip') {
+                skippedAt = lastOwn.at;
+            }
         } else if (g.nextStepFirstIdx !== -1) {
             // A later step exists in transitions, but no clear completion for this step.
             // Fallback to the next step's start.
@@ -197,6 +201,7 @@ export function deriveStepHistory(
         const substeps = buildSubsteps(g.transitions, completedAt);
 
         const entry: StepHistoryEntry = { startedAt, completedAt };
+        if (skippedAt) entry.skippedAt = skippedAt;
         if (substeps.length > 0) entry.substeps = substeps;
         out[g.step] = entry;
     }
