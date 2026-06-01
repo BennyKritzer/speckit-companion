@@ -2,7 +2,7 @@
   "name": "speckit-companion",
   "displayName": "SpecKit Companion",
   "description": "VS Code companion for GitHub SpecKit - spec-driven development with AI assistants",
-  "version": "0.23.19",
+  "version": "0.23.21",
   "license": "MIT",
   "publisher": "alfredoperez",
   "icon": "icon.png",
@@ -1006,6 +1006,10 @@
                       "continue": {
                         "type": "boolean",
                         "description": "If true, resume the previous AI session if supported"
+                      },
+                      "optional": {
+                        "type": "boolean",
+                        "description": "Indicates if the step is optional and can be skipped"
                       }
                     },
                     "additionalProperties": false
