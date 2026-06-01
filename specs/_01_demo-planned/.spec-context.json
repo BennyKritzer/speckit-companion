@@ -4,16 +4,14 @@
   "branch": "demo/planned",
   "selectedAt": "2026-05-20T20:00:00.000Z",
   "currentStep": "plan",
-  "status": "planned",
-  "stepHistory": {
-    "specify": {
-      "startedAt": "2026-05-20T20:00:00.000Z",
-      "completedAt": "2026-05-20T20:05:00.000Z"
-    },
-    "plan": {
-      "startedAt": "2026-05-20T20:05:00.000Z",
-      "completedAt": "2026-05-20T20:10:00.000Z"
+  "status": "archived",
+  "history": [
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-01T15:27:06.882Z"
     }
-  },
-  "transitions": []
+  ]
 }
