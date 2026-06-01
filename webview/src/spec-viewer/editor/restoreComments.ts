@@ -13,7 +13,8 @@
  */
 
 import type { ReviewComment } from '../types';
-import { viewerState } from '../signals';
+import { viewerStateAtom } from '../store/atoms';
+import { specViewerStore } from '../store/store';
 import { addRestoredRefinement } from './refinements';
 import { currentDoc } from './currentDoc';
 import { resolveAnchorLine, type RenderedLine } from './reanchor';
@@ -43,7 +44,7 @@ function anchorElement(c: ReviewComment, rendered: RenderedLine[]): HTMLElement 
  * idempotent per comment id.
  */
 export function restoreComments(): void {
-    const comments = viewerState.value?.reviewComments;
+    const comments = specViewerStore.get(viewerStateAtom)?.reviewComments;
     if (!comments || comments.length === 0) return;
     const doc = currentDoc();
     if (!doc) return;

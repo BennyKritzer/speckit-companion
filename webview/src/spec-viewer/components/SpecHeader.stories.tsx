@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact';
-import { navState, viewerState as vs } from '../signals';
 import { SpecHeader } from './SpecHeader';
 import { mockNavState } from './__stories__/mockData';
+import { setSpecViewerStoryState } from '../store/storyAtoms';
 
 const meta: Meta<typeof SpecHeader> = {
     title: 'Viewer/SpecHeader',
@@ -28,51 +28,51 @@ const withStatus = (status: string) => (Story: any) => {
 
 export const Full: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: 'COMPLETED',
             createdDate: 'Apr 4, 2026',
             specContextName: 'Explorer Viewer Fixes',
             branch: 'main',
             docTypeLabel: 'Tasks',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
 
 export const ActiveDraft: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: 'DRAFT',
             createdDate: 'Apr 6, 2026',
             specContextName: 'New Feature',
             branch: 'feat/new-feature',
             docTypeLabel: 'Spec',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
 
 export const MinimalTitle: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: null,
             createdDate: null,
             specContextName: 'Minimal Spec',
             branch: null,
             docTypeLabel: 'Spec',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
 
 export const Empty: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: null,
             createdDate: null,
             specContextName: null,
             branch: null,
-        });
+        }) });
         return <SpecHeader />;
     },
 };
@@ -84,11 +84,11 @@ export const Empty: Story = {
 export const StatusActive: Story = {
     decorators: [withStatus('active')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: 'ACTIVE',
             specContextName: 'Active Feature',
             docTypeLabel: 'Spec',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
@@ -96,11 +96,11 @@ export const StatusActive: Story = {
 export const StatusCompleted: Story = {
     decorators: [withStatus('completed')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: 'COMPLETED',
             specContextName: 'Completed Feature',
             docTypeLabel: 'Tasks',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
@@ -108,11 +108,11 @@ export const StatusCompleted: Story = {
 export const StatusArchived: Story = {
     decorators: [withStatus('archived')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: 'ARCHIVED',
             specContextName: 'Archived Feature',
             docTypeLabel: 'Spec',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
@@ -120,11 +120,11 @@ export const StatusArchived: Story = {
 export const StatusTasksDone: Story = {
     decorators: [withStatus('tasks-done')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             badgeText: 'TASKS DONE',
             specContextName: 'All Tasks Complete',
             docTypeLabel: 'Tasks',
-        });
+        }) });
         return <SpecHeader />;
     },
 };
@@ -137,11 +137,12 @@ export const StatusCreatingTasks: Story = {
     name: 'Creating Tasks',
     decorators: [withStatus('tasking')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({
+            navState: mockNavState({
             specContextName: 'Tasking In Progress',
             docTypeLabel: 'Tasks',
-        });
-        vs.value = {
+        }),
+            viewerState: {
             status: 'tasking',
             activeStep: 'tasks',
             steps: {},
@@ -149,7 +150,8 @@ export const StatusCreatingTasks: Story = {
             highlights: [],
             activeSubstep: null,
             footer: [],
-        };
+            },
+        });
         return <SpecHeader />;
     },
 };
@@ -158,11 +160,12 @@ export const StatusTasksCreated: Story = {
     name: 'Tasks Created',
     decorators: [withStatus('ready-to-implement')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({
+            navState: mockNavState({
             specContextName: 'Ready For Build',
             docTypeLabel: 'Tasks',
-        });
-        vs.value = {
+        }),
+            viewerState: {
             status: 'ready-to-implement',
             activeStep: 'tasks',
             steps: {},
@@ -170,7 +173,8 @@ export const StatusTasksCreated: Story = {
             highlights: [],
             activeSubstep: null,
             footer: [],
-        };
+            },
+        });
         return <SpecHeader />;
     },
 };
@@ -179,11 +183,12 @@ export const StatusImplemented: Story = {
     name: 'Implemented',
     decorators: [withStatus('implemented')],
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({
+            navState: mockNavState({
             specContextName: 'Build Done — Awaiting Approval',
             docTypeLabel: 'Tasks',
-        });
-        vs.value = {
+        }),
+            viewerState: {
             status: 'implemented',
             activeStep: 'implement',
             steps: {},
@@ -191,7 +196,8 @@ export const StatusImplemented: Story = {
             highlights: [],
             activeSubstep: null,
             footer: [],
-        };
+            },
+        });
         return <SpecHeader />;
     },
 };

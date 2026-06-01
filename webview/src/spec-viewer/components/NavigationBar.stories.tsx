@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact';
-import { navState } from '../signals';
 import { NavigationBar } from './NavigationBar';
 import { mockDoc, mockNavState, mockRelatedDoc, stalePlan } from './__stories__/mockData';
+import { setSpecViewerStoryState } from '../store/storyAtoms';
 
 const meta: Meta<typeof NavigationBar> = {
     title: 'Viewer/NavigationBar',
@@ -14,59 +14,59 @@ type Story = StoryObj<typeof NavigationBar>;
 
 export const ActiveSpec: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [mockDoc('spec', true, 'Specification'), mockDoc('plan', true, 'Plan'), mockDoc('tasks', true, 'Tasks')],
             currentDoc: 'spec',
             workflowPhase: 'tasks',
             taskCompletionPercent: 45,
-        });
+        }) });
         return <NavigationBar />;
     },
 };
 
 export const CompletedSpec: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [mockDoc('spec', true, 'Specification'), mockDoc('plan', true, 'Plan'), mockDoc('tasks', true, 'Tasks')],
             currentDoc: 'tasks',
             workflowPhase: 'tasks',
             taskCompletionPercent: 100,
-        });
+        }) });
         return <NavigationBar />;
     },
 };
 
 export const NewSpec: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [mockDoc('spec', true, 'Specification'), mockDoc('plan', false, 'Plan'), mockDoc('tasks', false, 'Tasks')],
             currentDoc: 'spec',
             workflowPhase: 'spec',
-        });
+        }) });
         return <NavigationBar />;
     },
 };
 
 export const WithStaleIndicator: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [mockDoc('spec', true, 'Specification'), mockDoc('plan', true, 'Plan'), mockDoc('tasks', false, 'Tasks')],
             currentDoc: 'spec',
             workflowPhase: 'plan',
             stalenessMap: stalePlan,
-        });
+        }) });
         return <NavigationBar />;
     },
 };
 
 export const WorkingOnPlan: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [mockDoc('spec', true, 'Specification'), mockDoc('plan', true, 'Plan'), mockDoc('tasks', false, 'Tasks')],
             currentDoc: 'plan',
             workflowPhase: 'plan',
             activeStep: 'plan',
-        });
+        }) });
         return <NavigationBar />;
     },
 };
@@ -79,7 +79,7 @@ export const WorkingOnPlan: Story = {
 
 export const PlanWithChildrenActive: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [
                 mockDoc('spec', true, 'Specification'),
                 mockDoc('plan', true, 'Plan'),
@@ -92,14 +92,14 @@ export const PlanWithChildrenActive: Story = {
             ],
             currentDoc: 'plan',
             workflowPhase: 'plan',
-        });
+        }) });
         return <NavigationBar />;
     },
 };
 
 export const ViewingDataModel: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [
                 mockDoc('spec', true, 'Specification'),
                 mockDoc('plan', true, 'Plan'),
@@ -113,14 +113,14 @@ export const ViewingDataModel: Story = {
             currentDoc: 'data-model',
             workflowPhase: 'plan',
             isViewingRelatedDoc: true,
-        });
+        }) });
         return <NavigationBar />;
     },
 };
 
 export const SpecWithoutChildren: Story = {
     render: () => {
-        navState.value = mockNavState({
+        setSpecViewerStoryState({ navState: mockNavState({
             coreDocs: [
                 mockDoc('spec', true, 'Specification'),
                 mockDoc('plan', true, 'Plan'),
@@ -132,7 +132,7 @@ export const SpecWithoutChildren: Story = {
             ],
             currentDoc: 'spec',
             workflowPhase: 'plan',
-        });
+        }) });
         return <NavigationBar />;
     },
 };

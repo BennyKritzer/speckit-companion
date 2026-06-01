@@ -1,16 +1,10 @@
 /**
  * Reactive state for the spec viewer webview.
- * Components that read .value auto-re-render when it changes.
+ * Legacy editor-local signals remain for inline editing and modal state.
  */
 
 import { signal } from '@preact/signals';
-import type { NavState, Refinement, DocumentType, ViewerState, HistoryEntry } from './types';
-
-/** Navigation state from extension messages */
-export const navState = signal<NavState | null>(null);
-
-/** Derived viewer state (pulse, highlights, footer, substep). */
-export const viewerState = signal<ViewerState | null>(null);
+import type { Refinement } from './types';
 
 /** Pending refinements for GitHub-style review */
 export const pendingRefinements = signal<Refinement[]>([]);
@@ -23,12 +17,3 @@ export const refineLineNum = signal<number | null>(null);
 
 /** Current content being refined (modal) */
 export const refineContent = signal('');
-
-/** Rendered markdown HTML (set imperatively, read by App) */
-export const markdownHtml = signal('');
-
-/** Whether the activity panel is visible (toggled from the nav bar). */
-export const activityVisible = signal(false);
-
-/** History array mirrored from viewerState for the timeline panel. */
-export const historyEntries = signal<HistoryEntry[]>([]);

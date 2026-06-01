@@ -1,11 +1,14 @@
 import type { VSCodeApi } from '../types';
-import { navState, activityVisible } from '../signals';
+import { activityVisibleAtom, navStateAtom } from '../store/atoms';
+import { specViewerStore } from '../store/store';
 import { StepTab } from './StepTab';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 
 declare const vscode: VSCodeApi;
 
 export function NavigationBar() {
-    const ns = navState.value;
+    const ns = useStoreAtomValue(navStateAtom);
+    const activityVisible = useStoreAtomValue(activityVisibleAtom);
     if (!ns) return null;
 
     const { coreDocs, relatedDocs, currentDoc, workflowPhase,
@@ -64,11 +67,11 @@ export function NavigationBar() {
 
     const activityMode = ns.activityPanelMode ?? 'beta';
     const isActionOnlyDoc = coreDocs.find(d => d.type === currentDoc)?.actionOnly ?? false;
-    const activityActive = activityVisible.value || isActionOnlyDoc;
+    const activityActive = activityVisible || isActionOnlyDoc;
     
     const handleActivityToggle = () => {
         if (isActionOnlyDoc) return; // Locked open when in actionOnly phase
-        activityVisible.value = !activityVisible.value;
+        specViewerStore.set(activityVisibleAtom, !activityVisible);
     };
 
     return (

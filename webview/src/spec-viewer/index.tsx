@@ -4,8 +4,7 @@
  */
 
 import { render } from 'preact';
-import type { VSCodeApi, ExtensionToViewerMessage, NavState } from './types';
-import { navState, markdownHtml, viewerState, historyEntries } from './signals';
+import type { VSCodeApi, ExtensionToViewerMessage, NavState, ViewerState } from './types';
 import { renderMarkdown, setCurrentTask, setHasSpecContext } from './markdown';
 import { applyHighlighting, initializeMermaid } from './highlighting';
 import { setupLineActions } from './editor';
@@ -14,6 +13,8 @@ import { setupCheckboxToggle, setupFileRefClickHandler } from './actions';
 import { showToast } from '../shared/components/Toast';
 import { App } from './App';
 import { buildToc } from './toc';
+import { specViewerStore } from './store/store';
+import { historyEntriesAtom, markdownHtmlAtom, navStateAtom, viewerStateAtom } from './store/atoms';
 
 declare global {
     interface Window {
@@ -40,7 +41,7 @@ function decodeBase64Utf8(base64: string): string {
 function updateContent(content: string): void {
     const decoded = decodeBase64Utf8(content);
     const html = renderMarkdown(decoded);
-    markdownHtml.value = html;
+    specViewerStore.set(markdownHtmlAtom, html);
 
     requestAnimationFrame(() => {
         applyHighlighting();
@@ -51,6 +52,23 @@ function updateContent(content: string): void {
             document.getElementById('spec-toc')
         );
     });
+}
+
+function hydrateViewerStore(message: { navState?: NavState; viewerState?: ViewerState }): void {
+    if (message.navState) {
+        specViewerStore.set(navStateAtom, message.navState);
+    }
+    if (message.viewerState) {
+        specViewerStore.set(viewerStateAtom, message.viewerState);
+        specViewerStore.set(historyEntriesAtom, message.viewerState.history ?? []);
+    }
+}
+
+function mergeNavState(base: NavState | null, patch: Partial<NavState>): NavState {
+    return {
+        ...(base ?? ({} as NavState)),
+        ...patch,
+    };
 }
 
 // ============================================
@@ -66,25 +84,19 @@ function handleMessage(event: MessageEvent): void {
                 setCurrentTask(message.navState.currentTask);
             }
             setHasSpecContext(!!(message.navState?.specContextName || message.navState?.badgeText));
-            if (message.navState) {
-                navState.value = message.navState;
-            }
-            if (message.viewerState) {
-                viewerState.value = message.viewerState;
-                historyEntries.value = message.viewerState.history ?? [];
-            }
+            hydrateViewerStore(message);
             updateContent(message.content);
             break;
 
         case 'navStateUpdated':
-            navState.value = message.navState;
+            specViewerStore.set(navStateAtom, message.navState);
             break;
 
         case 'viewerStateUpdated':
-            viewerState.value = message.viewerState;
-            historyEntries.value = message.viewerState.history ?? [];
+            specViewerStore.set(viewerStateAtom, message.viewerState);
+            specViewerStore.set(historyEntriesAtom, message.viewerState.history ?? []);
             if (message.navState) {
-                navState.value = { ...navState.value, ...message.navState } as NavState;
+                specViewerStore.set(navStateAtom, mergeNavState(specViewerStore.get(navStateAtom), message.navState));
             }
             break;
 
@@ -144,7 +156,7 @@ function init(): void {
     // Load initial navState from server-rendered script
     const initialNav = window.__INITIAL_NAV_STATE__;
     if (initialNav) {
-        navState.value = initialNav;
+        specViewerStore.set(navStateAtom, initialNav);
     }
 
     // Wire message listener before render

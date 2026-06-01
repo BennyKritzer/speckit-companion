@@ -12,9 +12,9 @@
 import type { Meta, StoryObj } from '@storybook/preact';
 import { ActivityPanel } from './ActivityPanel';
 import { ActivityErrorBoundary } from './ActivityErrorBoundary';
-import { viewerState } from '../signals';
 import type { ViewerState, TaskSummary, Transition } from '../types';
 import legacyFixture from '../../../../specs/095-fix-tasks-card-concerns/fixtures/legacy-string-concerns.spec-context.json';
+import { setSpecViewerStoryState } from '../store/storyAtoms';
 
 const meta: Meta<typeof ActivityPanel> = {
     title: 'Viewer/Activity/ActivityPanel',
@@ -54,7 +54,7 @@ const baseState = (overrides: Partial<ViewerState>): ViewerState => ({
 export const Empty: Story = {
     name: 'Empty — no activity yet',
     render: () => {
-        viewerState.value = baseState({ status: 'draft', activeStep: 'specify' });
+        setSpecViewerStoryState({ viewerState: baseState({ status: 'draft', activeStep: 'specify' }) });
         return <ActivityPanel />;
     },
 };
@@ -85,7 +85,7 @@ export const Canonical: Story = {
             { step: 'plan', substep: null, from: { step: 'specify', substep: null }, by: 'extension', at: iso(720_000) },
             { step: 'implement', substep: null, from: { step: 'plan', substep: null }, by: 'extension', at: iso(300_000) },
         ];
-        viewerState.value = baseState({
+        setSpecViewerStoryState({ viewerState: baseState({
             transitions,
             stepHistory: {
                 specify: { startedAt: iso(900_000), completedAt: iso(720_000) },
@@ -93,7 +93,7 @@ export const Canonical: Story = {
                 implement: { startedAt: iso(300_000), completedAt: null },
             },
             taskSummaries,
-        });
+        }) });
         return <ActivityPanel />;
     },
 };
@@ -110,7 +110,7 @@ export const LegacyStringConcerns: Story = {
     render: () => {
         const taskSummaries = legacyFixture.task_summaries as unknown as Record<string, TaskSummary>;
         const transitions = legacyFixture.transitions as unknown as Transition[];
-        viewerState.value = baseState({
+        setSpecViewerStoryState({ viewerState: baseState({
             status: 'implementing',
             activeStep: 'implement',
             taskSummaries,
@@ -120,7 +120,7 @@ export const LegacyStringConcerns: Story = {
                 plan: { startedAt: '2026-04-12T18:15:05.479Z', completedAt: '2026-04-12T18:23:23Z' },
                 implement: { startedAt: '2026-04-12T18:23:23Z', completedAt: null },
             },
-        });
+        }) });
         return <ActivityPanel />;
     },
 };
@@ -164,7 +164,7 @@ export const MixedShapes: Story = {
                 concerns: 42,
             },
         } as unknown as Record<string, TaskSummary>;
-        viewerState.value = baseState({ taskSummaries });
+        setSpecViewerStoryState({ viewerState: baseState({ taskSummaries }) });
         return <ActivityPanel />;
     },
 };

@@ -12,9 +12,9 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/preact';
-import { navState, viewerState } from '../signals';
 import { FooterActions } from './FooterActions';
 import { mockDoc, mockNavState } from './__stories__/mockData';
+import { setSpecViewerStoryState } from '../store/storyAtoms';
 
 const meta: Meta<typeof FooterActions> = {
     title: 'Viewer/FooterActions',
@@ -28,8 +28,10 @@ type Story = StoryObj<typeof FooterActions>;
 
 export const Active: Story = {
     render: () => {
-        navState.value = mockNavState({
-            footerState: { showApproveButton: true, approveText: 'Plan', enhancementButtons: [], specStatus: 'active' },
+        setSpecViewerStoryState({
+            navState: mockNavState({
+                footerState: { showApproveButton: true, approveText: 'Plan', enhancementButtons: [], specStatus: 'active' },
+            }),
         });
         return <FooterActions initialSpecStatus="active" />;
     },
@@ -37,13 +39,15 @@ export const Active: Story = {
 
 export const ActiveWithEnhancements: Story = {
     render: () => {
-        navState.value = mockNavState({
-            footerState: {
-                showApproveButton: true,
-                approveText: 'Plan',
-                enhancementButtons: [{ label: 'Auto Mode', command: 'autoMode', icon: '⚡', tooltip: 'Run automatic pipeline' }],
-                specStatus: 'active',
-            },
+        setSpecViewerStoryState({
+            navState: mockNavState({
+                footerState: {
+                    showApproveButton: true,
+                    approveText: 'Plan',
+                    enhancementButtons: [{ label: 'Auto Mode', command: 'autoMode', icon: '⚡', tooltip: 'Run automatic pipeline' }],
+                    specStatus: 'active',
+                },
+            }),
         });
         return <FooterActions initialSpecStatus="active" />;
     },
@@ -51,8 +55,10 @@ export const ActiveWithEnhancements: Story = {
 
 export const TasksDone: Story = {
     render: () => {
-        navState.value = mockNavState({
-            footerState: { showApproveButton: false, approveText: '', enhancementButtons: [], specStatus: 'tasks-done' },
+        setSpecViewerStoryState({
+            navState: mockNavState({
+                footerState: { showApproveButton: false, approveText: '', enhancementButtons: [], specStatus: 'tasks-done' },
+            }),
         });
         return <FooterActions initialSpecStatus="tasks-done" />;
     },
@@ -120,8 +126,10 @@ export const Specifying: Story = {
     name: 'Specifying',
     render: () => {
         // In-flight: renderer hides all buttons because isRunning=true.
-        navState.value = inFlightNavState('specifying', 'specify');
-        viewerState.value = baseViewerState('specifying', 'specify', pauseFooter('Plan'));
+        setSpecViewerStoryState({
+            navState: inFlightNavState('specifying', 'specify'),
+            viewerState: baseViewerState('specifying', 'specify', pauseFooter('Plan')),
+        });
         return <FooterActions initialSpecStatus="specifying" />;
     },
 };
@@ -129,8 +137,10 @@ export const Specifying: Story = {
 export const Specified: Story = {
     name: 'Specified',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'specified' });
-        viewerState.value = baseViewerState('specified', 'specify', pauseFooter('Plan'));
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'specified' }),
+            viewerState: baseViewerState('specified', 'specify', pauseFooter('Plan')),
+        });
         return <FooterActions initialSpecStatus="specified" />;
     },
 };
@@ -138,8 +148,10 @@ export const Specified: Story = {
 export const SpecifiedWithRefine: Story = {
     name: 'Specified With Refine',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'specified' });
-        viewerState.value = baseViewerState('specified', 'specify', withRefine(pauseFooter('Plan')));
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'specified' }),
+            viewerState: baseViewerState('specified', 'specify', withRefine(pauseFooter('Plan'))),
+        });
         return <FooterActions initialSpecStatus="specified" />;
     },
 };
@@ -147,8 +159,10 @@ export const SpecifiedWithRefine: Story = {
 export const Planning: Story = {
     name: 'Planning',
     render: () => {
-        navState.value = inFlightNavState('planning', 'plan');
-        viewerState.value = baseViewerState('planning', 'plan', pauseFooter('Tasks'));
+        setSpecViewerStoryState({
+            navState: inFlightNavState('planning', 'plan'),
+            viewerState: baseViewerState('planning', 'plan', pauseFooter('Tasks')),
+        });
         return <FooterActions initialSpecStatus="planning" />;
     },
 };
@@ -156,8 +170,10 @@ export const Planning: Story = {
 export const Planned: Story = {
     name: 'Planned',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'planned' });
-        viewerState.value = baseViewerState('planned', 'plan', pauseFooter('Tasks'));
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'planned' }),
+            viewerState: baseViewerState('planned', 'plan', pauseFooter('Tasks')),
+        });
         return <FooterActions initialSpecStatus="planned" />;
     },
 };
@@ -165,8 +181,10 @@ export const Planned: Story = {
 export const PlannedWithRefine: Story = {
     name: 'Planned With Refine',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'planned' });
-        viewerState.value = baseViewerState('planned', 'plan', withRefine(pauseFooter('Tasks')));
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'planned' }),
+            viewerState: baseViewerState('planned', 'plan', withRefine(pauseFooter('Tasks'))),
+        });
         return <FooterActions initialSpecStatus="planned" />;
     },
 };
@@ -174,8 +192,10 @@ export const PlannedWithRefine: Story = {
 export const CreatingTasks: Story = {
     name: 'Creating Tasks',
     render: () => {
-        navState.value = inFlightNavState('tasking', 'tasks');
-        viewerState.value = baseViewerState('tasking', 'tasks', pauseFooter('Implement'));
+        setSpecViewerStoryState({
+            navState: inFlightNavState('tasking', 'tasks'),
+            viewerState: baseViewerState('tasking', 'tasks', pauseFooter('Implement')),
+        });
         return <FooterActions initialSpecStatus="tasking" />;
     },
 };
@@ -183,12 +203,10 @@ export const CreatingTasks: Story = {
 export const TasksCreated: Story = {
     name: 'Tasks Created',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'ready-to-implement' });
-        viewerState.value = baseViewerState(
-            'ready-to-implement',
-            'tasks',
-            pauseFooter('Implement')
-        );
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'ready-to-implement' }),
+            viewerState: baseViewerState('ready-to-implement', 'tasks', pauseFooter('Implement')),
+        });
         return <FooterActions initialSpecStatus="ready-to-implement" />;
     },
 };
@@ -196,12 +214,10 @@ export const TasksCreated: Story = {
 export const TasksCreatedWithRefine: Story = {
     name: 'Tasks Created With Refine',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'ready-to-implement' });
-        viewerState.value = baseViewerState(
-            'ready-to-implement',
-            'tasks',
-            withRefine(pauseFooter('Implement'))
-        );
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'ready-to-implement' }),
+            viewerState: baseViewerState('ready-to-implement', 'tasks', withRefine(pauseFooter('Implement'))),
+        });
         return <FooterActions initialSpecStatus="ready-to-implement" />;
     },
 };
@@ -209,12 +225,10 @@ export const TasksCreatedWithRefine: Story = {
 export const Implementing: Story = {
     name: 'Implementing',
     render: () => {
-        navState.value = inFlightNavState('implementing', 'implement');
-        viewerState.value = baseViewerState(
-            'implementing',
-            'implement',
-            pauseFooter('Complete')
-        );
+        setSpecViewerStoryState({
+            navState: inFlightNavState('implementing', 'implement'),
+            viewerState: baseViewerState('implementing', 'implement', pauseFooter('Complete')),
+        });
         return <FooterActions initialSpecStatus="implementing" />;
     },
 };
@@ -222,8 +236,10 @@ export const Implementing: Story = {
 export const Implemented: Story = {
     name: 'Implemented',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'implemented' });
-        viewerState.value = baseViewerState('implemented', 'implement', finalApprovalFooter);
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'implemented' }),
+            viewerState: baseViewerState('implemented', 'implement', finalApprovalFooter),
+        });
         return <FooterActions initialSpecStatus="implemented" />;
     },
 };
@@ -234,15 +250,17 @@ export const ImplementedOptionalCommandsHidden: Story = {
         // Optional refinement commands are defined, but the spec is at the
         // closure gate (footer has `complete`), so Clarify/Checklist/Analyze
         // must NOT render — there's nothing left to refine.
-        navState.value = mockNavState({
-            specStatus: 'implemented',
-            activeStep: 'tasks',
-            enhancementButtons: [
-                { label: 'Checklist', command: '/speckit.checklist', icon: '⚡', tooltip: 'Generate a checklist' },
-                { label: 'Analyze', command: '/speckit.analyze', icon: '⚡', tooltip: 'Analyze the spec' },
-            ],
+        setSpecViewerStoryState({
+            navState: mockNavState({
+                specStatus: 'implemented',
+                activeStep: 'tasks',
+                enhancementButtons: [
+                    { label: 'Checklist', command: '/speckit.checklist', icon: '⚡', tooltip: 'Generate a checklist' },
+                    { label: 'Analyze', command: '/speckit.analyze', icon: '⚡', tooltip: 'Analyze the spec' },
+                ],
+            }),
+            viewerState: baseViewerState('implemented', 'tasks', finalApprovalFooter),
         });
-        viewerState.value = baseViewerState('implemented', 'tasks', finalApprovalFooter);
         return <FooterActions initialSpecStatus="implemented" />;
     },
 };
@@ -250,11 +268,13 @@ export const ImplementedOptionalCommandsHidden: Story = {
 export const Completed: Story = {
     name: 'Completed',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'completed' });
-        viewerState.value = baseViewerState('completed', 'implement', [
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'completed' }),
+            viewerState: baseViewerState('completed', 'implement', [
             { id: 'archive', label: 'Archive', scope: 'spec', tooltip: 'Archive this spec' },
             { id: 'reactivate', label: 'Reactivate', scope: 'spec', tooltip: 'Reactivate archived spec' },
-        ]);
+            ]),
+        });
         return <FooterActions initialSpecStatus="completed" />;
     },
 };
@@ -262,10 +282,12 @@ export const Completed: Story = {
 export const Archived: Story = {
     name: 'Archived',
     render: () => {
-        navState.value = mockNavState({ specStatus: 'archived' });
-        viewerState.value = baseViewerState('archived', 'implement', [
+        setSpecViewerStoryState({
+            navState: mockNavState({ specStatus: 'archived' }),
+            viewerState: baseViewerState('archived', 'implement', [
             { id: 'reactivate', label: 'Reactivate', scope: 'spec', tooltip: 'Reactivate archived spec' },
-        ]);
+            ]),
+        });
         return <FooterActions initialSpecStatus="archived" />;
     },
 };
@@ -280,8 +302,10 @@ export const Archived: Story = {
 export const GeneratingTasks: Story = {
     name: 'Generating — Tasks',
     render: () => {
-        navState.value = inFlightNavState('tasking', 'tasks');
-        viewerState.value = baseViewerState('tasking', 'tasks', pauseFooter('Implement'));
+        setSpecViewerStoryState({
+            navState: inFlightNavState('tasking', 'tasks'),
+            viewerState: baseViewerState('tasking', 'tasks', pauseFooter('Implement')),
+        });
         return <FooterActions initialSpecStatus="tasking" />;
     },
 };
@@ -289,8 +313,10 @@ export const GeneratingTasks: Story = {
 export const GeneratingPlan: Story = {
     name: 'Generating — Plan',
     render: () => {
-        navState.value = inFlightNavState('planning', 'plan');
-        viewerState.value = baseViewerState('planning', 'plan', pauseFooter('Tasks'));
+        setSpecViewerStoryState({
+            navState: inFlightNavState('planning', 'plan'),
+            viewerState: baseViewerState('planning', 'plan', pauseFooter('Tasks')),
+        });
         return <FooterActions initialSpecStatus="planning" />;
     },
 };
@@ -299,14 +325,16 @@ export const GeneratingArtifactReady: Story = {
     name: 'Generating — artifact ready (re-enabled)',
     render: () => {
         // Running, but the artifact is now detected → normal forward footer.
-        navState.value = mockNavState({
-            specStatus: 'tasking',
-            activeStep: 'tasks',
-            runningStepArtifactReady: true,
-            runningStepStartedAt: new Date().toISOString(),
-            stepHistory: { tasks: { startedAt: new Date().toISOString(), completedAt: null } },
+        setSpecViewerStoryState({
+            navState: mockNavState({
+                specStatus: 'tasking',
+                activeStep: 'tasks',
+                runningStepArtifactReady: true,
+                runningStepStartedAt: new Date().toISOString(),
+                stepHistory: { tasks: { startedAt: new Date().toISOString(), completedAt: null } },
+            }),
+            viewerState: baseViewerState('tasking', 'tasks', pauseFooter('Implement')),
         });
-        viewerState.value = baseViewerState('tasking', 'tasks', pauseFooter('Implement'));
         return <FooterActions initialSpecStatus="tasking" />;
     },
 };
@@ -316,14 +344,16 @@ export const GeneratingTimedOut: Story = {
     render: () => {
         // Running, artifact never appeared, but the 10-min window elapsed →
         // footer falls back to the enabled buttons so it never strands.
-        navState.value = mockNavState({
-            specStatus: 'tasking',
-            activeStep: 'tasks',
-            runningStepArtifactReady: false,
-            runningStepStartedAt: '2026-05-08T00:00:00Z',
-            stepHistory: { tasks: { startedAt: '2026-05-08T00:00:00Z', completedAt: null } },
+        setSpecViewerStoryState({
+            navState: mockNavState({
+                specStatus: 'tasking',
+                activeStep: 'tasks',
+                runningStepArtifactReady: false,
+                runningStepStartedAt: '2026-05-08T00:00:00Z',
+                stepHistory: { tasks: { startedAt: '2026-05-08T00:00:00Z', completedAt: null } },
+            }),
+            viewerState: baseViewerState('tasking', 'tasks', pauseFooter('Implement')),
         });
-        viewerState.value = baseViewerState('tasking', 'tasks', pauseFooter('Implement'));
         return <FooterActions initialSpecStatus="tasking" />;
     },
 };

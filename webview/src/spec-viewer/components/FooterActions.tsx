@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'preact/hooks';
 import type { VSCodeApi, ViewerToExtensionMessage, SerializedFooterAction } from '../types';
-import { navState, viewerState } from '../signals';
 import { Button } from '../../shared/components/Button';
 import { Toast } from '../../shared/components/Toast';
 import { UndoToast } from '../../shared/components/UndoToast';
 import { useInlineConfirm } from '../../shared/hooks/useInlineConfirm';
+import { isGeneratingAtom, navStateAtom, runningStepLabelAtom, runningStepStartedAtAtom, viewerStateAtom } from '../store/atoms';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 
 declare const vscode: VSCodeApi;
 
@@ -27,8 +28,8 @@ export interface FooterActionsProps {
 }
 
 export function FooterActions({ initialSpecStatus }: FooterActionsProps) {
-    const ns = navState.value;
-    const vs = viewerState.value;
+    const ns = useStoreAtomValue(navStateAtom);
+    const vs = useStoreAtomValue(viewerStateAtom);
 
     // All hooks must run before the early `if (!ns)` return below, so they read
     // navState defensively (it can be momentarily null before the first update).
@@ -46,10 +47,12 @@ export function FooterActions({ initialSpecStatus }: FooterActionsProps) {
     // A running step stays "generating" until its artifact is detected on disk;
     // after RECOVERY_TIMEOUT_MS the footer drops back to its enabled buttons so
     // the UI never strands.
-    const artifactReady = ns?.runningStepArtifactReady ?? false;
-    const startedAtMs = ns?.runningStepStartedAt ? Date.parse(ns.runningStepStartedAt) : NaN;
+    const isGeneratingFromStore = useStoreAtomValue(isGeneratingAtom);
+    const startedAt = useStoreAtomValue(runningStepStartedAtAtom);
+    const runningStepLabel = useStoreAtomValue(runningStepLabelAtom);
+    const startedAtMs = startedAt ? Date.parse(startedAt) : NaN;
     const timedOut = !Number.isNaN(startedAtMs) && Date.now() - startedAtMs > RECOVERY_TIMEOUT_MS;
-    const isGenerating = isRunning && !artifactReady && !timedOut;
+    const isGenerating = isRunning && isGeneratingFromStore && !timedOut;
 
     // Re-render once the recovery window elapses, even with no navState update.
     useEffect(() => {
@@ -112,7 +115,7 @@ export function FooterActions({ initialSpecStatus }: FooterActionsProps) {
                         title="The AI is generating this step — this status updates once the artifact is ready"
                     >
                         <span class="btn-spinner" aria-hidden="true" />
-                        Generating {ns.runningStepLabel ?? 'step'}…
+                        Generating {runningStepLabel ?? 'step'}…
                     </span>
                 </div>
             </footer>

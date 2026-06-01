@@ -1,4 +1,5 @@
-import { navState, viewerState } from '../signals';
+import { navStateAtom, viewerStateAtom } from '../store/atoms';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 
 // Visible-label overrides for canonical status keys whose default
 // hyphen-split capitalization isn't the friendliest reading. Keeps
@@ -17,8 +18,8 @@ function formatStatusLabel(status: string): string {
 }
 
 export function SpecHeader() {
-    const ns = navState.value;
-    const vs = viewerState.value;
+    const ns = useStoreAtomValue(navStateAtom);
+    const vs = useStoreAtomValue(viewerStateAtom);
     if (!ns) return null;
 
     const badgeText = vs ? formatStatusLabel(vs.status) : ns.badgeText;

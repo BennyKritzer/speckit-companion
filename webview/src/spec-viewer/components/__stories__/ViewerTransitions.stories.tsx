@@ -19,13 +19,13 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/preact';
-import { navState, viewerState } from '../../signals';
 import type { ViewerState, SerializedFooterAction } from '../../types';
 import { SpecHeader } from '../SpecHeader';
 import { NavigationBar } from '../NavigationBar';
 import { FooterActions } from '../FooterActions';
 import { CreateSpecMock } from '../../../spec-editor/CreateSpecMock';
 import { mockDoc, mockNavState } from './mockData';
+import { setSpecViewerStoryState } from '../../store/storyAtoms';
 
 const meta: Meta = {
     title: 'Viewer/Transitions',
@@ -106,37 +106,39 @@ const withRefine = (footer: SerializedFooterAction[]): SerializedFooterAction[] 
     [REFINE_ACTION, ...footer];
 
 function renderFrame(frame: Frame) {
-    navState.value = mockNavState({
-        coreDocs: [
-            mockDoc('spec', true, 'Specification'),
-            mockDoc('plan', frame.workflowPhase !== 'spec', 'Plan'),
-            mockDoc('tasks', ['tasks', 'implement'].includes(frame.workflowPhase), 'Tasks'),
-        ],
-        currentDoc: frame.activeDoc,
-        workflowPhase: frame.workflowPhase,
-        activeStep: frame.activeStep,
-        ...(frame.currentStep !== undefined ? { currentStep: frame.currentStep } : {}),
-        ...(frame.taskCompletionPercent !== undefined
-            ? { taskCompletionPercent: frame.taskCompletionPercent }
-            : {}),
-        stepHistory: frame.stepHistory,
-        specStatus: frame.status,
-        badgeText: frame.badgeText,
-        specContextName: 'Quiet Footer Demo',
-        branch: 'feat/094-viewer-state-machine',
-        createdDate: 'May 8, 2026',
+    setSpecViewerStoryState({
+        navState: mockNavState({
+            coreDocs: [
+                mockDoc('spec', true, 'Specification'),
+                mockDoc('plan', frame.workflowPhase !== 'spec', 'Plan'),
+                mockDoc('tasks', ['tasks', 'implement'].includes(frame.workflowPhase), 'Tasks'),
+            ],
+            currentDoc: frame.activeDoc,
+            workflowPhase: frame.workflowPhase,
+            activeStep: frame.activeStep,
+            ...(frame.currentStep !== undefined ? { currentStep: frame.currentStep } : {}),
+            ...(frame.taskCompletionPercent !== undefined
+                ? { taskCompletionPercent: frame.taskCompletionPercent }
+                : {}),
+            stepHistory: frame.stepHistory,
+            specStatus: frame.status,
+            badgeText: frame.badgeText,
+            specContextName: 'Quiet Footer Demo',
+            branch: 'feat/094-viewer-state-machine',
+            createdDate: 'May 8, 2026',
+        }),
+        viewerState: {
+            status: frame.status,
+            activeStep: frame.activeStep,
+            steps: {},
+            pulse: null,
+            highlights: [],
+            activeSubstep: null,
+            footer: frame.footer,
+            transitions: [],
+            stepHistory: frame.stepHistory,
+        },
     });
-    viewerState.value = {
-        status: frame.status,
-        activeStep: frame.activeStep,
-        steps: {},
-        pulse: null,
-        highlights: [],
-        activeSubstep: null,
-        footer: frame.footer,
-        transitions: [],
-        stepHistory: frame.stepHistory,
-    };
 
     return (
         <div style="background: var(--vscode-editor-background, #1e1e1e); color: var(--vscode-foreground, #ccc); padding: 24px; min-height: 100vh; font-family: var(--vscode-font-family, system-ui);">

@@ -81,6 +81,10 @@ webview/
 │   │   ├── scratchpad.ts       # Pure helper: which doc is currently active
 │   │   │                       # in nav state? Used by FooterActions to
 │   │   │                       # branch to the scratchpad-tab footer.
+│   │   ├── store/              # Jotai store + derived atoms for viewer state
+│   │   │   ├── store.ts
+│   │   │   ├── atoms.ts
+│   │   │   └── storyAtoms.ts
 │   │   ├── state.ts
 │   │   ├── toc.ts              # Builds a sticky table-of-contents sidebar from rendered H2/H3 headings;
 │   │   │                       # tracks the active heading via IntersectionObserver and toggles a
@@ -148,6 +152,8 @@ assets/                         # Static assets
 
 The spec viewer column is structured `compact-nav` → `spec-header` (lifted out of the scroll region so it stays pinned) → `content-area` (a flex row holding `aside.spec-toc` and `#markdown-content`). The TOC is hidden via a `content-area--narrow` class when the scroll container drops below `--toc-min-width`.
 
+The spec viewer webview does not keep authoritative state of its own. It receives snapshot messages from the extension, stores them in a local Jotai vanilla store, and the Preact component tree reads from that store through a subscription hook. That keeps the UI reactive without introducing a second persistence layer in the browser sandbox.
+
 The spec viewer and workflow editor run in VS Code webviews (sandboxed browser):
 
 ```
@@ -203,6 +209,7 @@ This is configured via the `commandFormat` field in `PROVIDER_PATHS` (`src/ai-pr
 - **File-based**: `specs/*/`, `.claude/settings/speckit-settings.json`, `.spec-context.json` per spec directory
 - **VS Code**: Extension context for subscriptions, globalState for persistence, workspaceState for per-workspace UI state (e.g. `speckit.specs.filter.query` from 075)
 - **Context keys**: `speckit.specs.filterActive` (075) toggles the clear-filter title-bar action; `speckit.specs.noFilterMatch` (075) drives the empty-result `viewsWelcome` entry; `speckit.specs.allCollapsed` (068) swaps the collapse/expand icon
+- **Spec viewer webview**: The spec-viewer shell hydrates a local Jotai vanilla store from extension snapshot messages (`webview/src/spec-viewer/store/atoms.ts`), and visible components subscribe through a store-backed hook. Storybook seeds the same store through `store/storyAtoms.ts`.
 
 ## Extension Points for Contributors
 

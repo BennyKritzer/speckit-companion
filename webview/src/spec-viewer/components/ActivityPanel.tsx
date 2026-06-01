@@ -1,5 +1,6 @@
 import type { ViewerState } from '../types';
-import { viewerState } from '../signals';
+import { viewerStateAtom } from '../store/atoms';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 import { ApproachCard } from './cards/ApproachCard';
 import { PhasesCard } from './cards/PhasesCard';
 import { TasksCard } from './cards/TasksCard';
@@ -21,7 +22,7 @@ function hasAnyData(state: ViewerState): boolean {
 }
 
 export function ActivityPanel() {
-    const state = viewerState.value;
+    const state = useStoreAtomValue(viewerStateAtom);
 
     if (!state || !hasAnyData(state)) {
         return (

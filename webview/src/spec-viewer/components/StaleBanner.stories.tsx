@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact';
-import { navState } from '../signals';
 import { StaleBanner } from './StaleBanner';
 import { mockNavState, stalePlan } from './__stories__/mockData';
+import { setSpecViewerStoryState } from '../store/storyAtoms';
 
 const meta: Meta<typeof StaleBanner> = {
     title: 'Viewer/StaleBanner',
@@ -13,17 +13,14 @@ type Story = StoryObj<typeof StaleBanner>;
 
 export const Visible: Story = {
     render: () => {
-        navState.value = mockNavState({
-            currentDoc: 'plan',
-            stalenessMap: stalePlan,
-        });
+        setSpecViewerStoryState({ navState: mockNavState({ currentDoc: 'plan', stalenessMap: stalePlan }) });
         return <StaleBanner />;
     },
 };
 
 export const Hidden: Story = {
     render: () => {
-        navState.value = mockNavState({ currentDoc: 'spec' });
+        setSpecViewerStoryState({ navState: mockNavState({ currentDoc: 'spec' }) });
         return <StaleBanner />;
     },
 };
