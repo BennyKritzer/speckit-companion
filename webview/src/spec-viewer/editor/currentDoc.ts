@@ -1,5 +1,6 @@
-import { navState } from "../signals";
 import type { DocumentType } from "../types";
+import { specViewerStore } from '../store/store';
+import { navStateAtom } from '../store/atoms';
 
 /**
  * The document currently being viewed, or null when nothing is selected.
@@ -11,7 +12,7 @@ import type { DocumentType } from "../types";
  * `checklists/requirements`, etc.
  */
 export function currentDoc(): DocumentType | null {
-  const d = navState.value?.currentDoc;
+  const d = specViewerStore.get(navStateAtom)?.currentDoc;
   if (!d) return null;
   if (d === "specify") return "spec";
   return d;

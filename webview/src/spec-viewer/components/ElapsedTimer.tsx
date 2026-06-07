@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import { formatElapsed } from '../elapsedFormat';
+import { runningStepStartedAtAtom } from '../store/atoms';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 
-interface ElapsedTimerProps {
-    startedAt: string | null | undefined;
-}
-
-export function ElapsedTimer({ startedAt }: ElapsedTimerProps) {
+export function ElapsedTimer() {
+    const startedAt = useStoreAtomValue(runningStepStartedAtAtom);
     const [now, setNow] = useState(() => Date.now());
 
     useEffect(() => {

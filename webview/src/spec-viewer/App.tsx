@@ -5,7 +5,8 @@ import { SpecHeader } from './components/SpecHeader';
 import { FooterActions } from './components/FooterActions';
 import { ActivityPanel } from './components/ActivityPanel';
 import { ActivityErrorBoundary } from './components/ActivityErrorBoundary';
-import { markdownHtml, navState, activityVisible, viewerState } from './signals';
+import { markdownHtmlAtom, navStateAtom, activityVisibleAtom, viewerStateAtom } from './store/atoms';
+import { useStoreAtomValue } from './store/useStoreAtom';
 import { restoreComments, clearAllRefinements } from './editor';
 
 export interface AppProps {
@@ -14,14 +15,14 @@ export interface AppProps {
 
 export function App({ specStatus }: AppProps) {
     const contentRef = useRef<HTMLDivElement>(null);
-    const html = markdownHtml.value;
-    const ns = navState.value;
+    const html = useStoreAtomValue(markdownHtmlAtom);
+    const ns = useStoreAtomValue(navStateAtom);
     
     // Automatically force the activity panel visible if the currently viewed document is an actionOnly phase
     const isActionOnlyDoc = ns?.coreDocs.find(d => d.type === ns.currentDoc)?.actionOnly ?? false;
-    const showActivity = activityVisible.value || isActionOnlyDoc;
+    const showActivity = useStoreAtomValue(activityVisibleAtom) || isActionOnlyDoc;
     
-    const reviewComments = viewerState.value?.reviewComments;
+    const reviewComments = useStoreAtomValue(viewerStateAtom)?.reviewComments;
     const [hasMountedActivity, setHasMountedActivity] = useState(false);
     useEffect(() => {
         if (showActivity) setHasMountedActivity(true);

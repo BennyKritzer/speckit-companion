@@ -479,6 +479,8 @@ source of truth for lifecycle state. The viewer derives badges, pulse,
 highlight, and footer button visibility from this file only. File
 existence is never used to infer step completion.
 
+The spec-viewer webview keeps a separate in-memory view of that snapshot by hydrating a local Jotai vanilla store from extension messages. The store only exists for the current render; the extension remains the source of truth for persistence and file-backed state.
+
 ### Canonical schema
 
 ```json

@@ -1,5 +1,6 @@
 import type { SpecDocument, StalenessMap } from '../types';
-import { viewerState } from '../signals';
+import { viewerStateAtom } from '../store/atoms';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 import { ElapsedTimer } from './ElapsedTimer';
 
 const DOC_TO_STEP: Record<string, string> = {
@@ -56,7 +57,7 @@ export function StepTab(props: StepTabProps) {
         && !stepDocExists;
     const isClickable = (exists || index === 0) && !isLocked;
 
-    const vs = viewerState.value;
+    const vs = useStoreAtomValue(viewerStateAtom);
     // R003: checkmark only when completed AND (the step's document exists OR it's an actionOnly step).
     const vsCompleted = (vs?.highlights?.includes(stepName) ?? false) && (stepDocExists || !!doc.actionOnly);
     const vsSubstep = vs?.activeSubstep?.step === stepName ? vs.activeSubstep.name : null;
@@ -118,7 +119,7 @@ export function StepTab(props: StepTabProps) {
             <span class="step-status">{statusIcon}</span>
             <span class="step-label">{doc.label}</span>
             {vsSubstep && <span class="step-tab__substep">{vsSubstep}</span>}
-            {runningStartedAt && <ElapsedTimer startedAt={runningStartedAt} />}
+            {runningStartedAt && <ElapsedTimer />}
             {isStale && <span class="stale-badge">!</span>}
         </button>
     );

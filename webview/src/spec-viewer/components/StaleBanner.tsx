@@ -1,10 +1,11 @@
 import type { VSCodeApi } from '../types';
-import { navState } from '../signals';
+import { navStateAtom } from '../store/atoms';
+import { useStoreAtomValue } from '../store/useStoreAtom';
 
 declare const vscode: VSCodeApi;
 
 export function StaleBanner() {
-    const ns = navState.value;
+    const ns = useStoreAtomValue(navStateAtom);
     if (!ns) return null;
 
     const currentStaleness = ns.stalenessMap?.[ns.currentDoc];

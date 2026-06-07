@@ -136,6 +136,8 @@ webview/                      # Webview UIs (browser context)
     └── workflow.css
 ```
 
+The spec viewer webview receives snapshot messages from the extension and hydrates a local Jotai vanilla store for markdown, nav state, and activity state. The extension remains the source of truth for persistence and file-system writes; the webview only keeps the current snapshot in memory and re-renders from that store.
+
 ---
 
 ## Architecture Deep Dive
@@ -315,6 +317,12 @@ sequenceDiagram
 ### 2. Webview Communication
 
 The extension has three webview UIs: the **Workflow Editor** (`webview/src/workflow.ts`), the **Spec Viewer** (`webview/src/spec-viewer/`), and the **Spec Editor** (`webview/src/spec-editor/`). All use the same message-passing pattern between extension and browser context.
+
+### Spec Viewer Snapshot Hydration
+1. The extension sends a `NavState` + `ViewerState` snapshot boundary to the spec-viewer webview.
+2. `webview/src/spec-viewer/index.tsx` hydrates the local Jotai store and the rendered markdown HTML from that snapshot.
+3. Components such as the navigation bar, header, footer, and activity panel subscribe to atoms in `webview/src/spec-viewer/store/atoms.ts`.
+4. Storybook fixtures seed the same store helper so the stories match the runtime wiring.
 
 **Files (Workflow Editor example):**
 - `src/features/workflow-editor/workflowEditorProvider.ts`
