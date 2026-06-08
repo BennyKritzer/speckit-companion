@@ -106,32 +106,6 @@ export function NavigationBar() {
                 })}
             </div>
             <div class="nav-right-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 }}>
-                {ns.footerState?.showApproveButton && ns.footerState?.approveText && (
-                    <button
-                        type="button"
-                        onClick={() => vscode.postMessage({ type: 'approve' })}
-                        style={{
-                            background: 'color-mix(in srgb, var(--vscode-button-background) 85%, transparent)',
-                            color: 'var(--vscode-button-foreground)',
-                            border: 'none',
-                            padding: '4px 10px',
-                            borderRadius: '2px',
-                            cursor: 'pointer',
-                            fontSize: '11px',
-                            height: '24px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            fontWeight: 500,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                        }}
-                        onMouseOver={(e: any) => e.target.style.background = 'var(--vscode-button-hoverBackground)'}
-                        onMouseOut={(e: any) => e.target.style.background = 'color-mix(in srgb, var(--vscode-button-background) 85%, transparent)'}
-                        title={`Proceed to ${ns.footerState.approveText}`}
-                    >
-                        {ns.footerState.approveText} <span style={{ marginLeft: '4px', opacity: 0.8, fontSize: '14px', lineHeight: 1 }}>→</span>
-                    </button>
-                )}
                 {activityMode !== 'off' && (
                     <button
                         type="button"
