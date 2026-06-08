@@ -9,20 +9,20 @@ export type StepName =
     | 'specify'
     | 'clarify'
     | 'plan'
+    | 'checklist'
     | 'tasks'
     | 'analyze'
     | 'implement'
-    | 'checklist'
     | 'git.validate';
 
 export const STEP_NAMES: StepName[] = [
     'specify',
     'clarify',
     'plan',
+    'checklist',
     'tasks',
     'analyze',
     'implement',
-    'checklist',
     'git.validate',
 ];
 

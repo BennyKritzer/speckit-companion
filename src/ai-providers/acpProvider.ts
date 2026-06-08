@@ -88,7 +88,8 @@ export class AcpProvider implements IAIProvider {
     async executeInTerminal(prompt: string, title: string = 'SpecKit - ACP', options?: AIOptions): Promise<vscode.Terminal> {
         // Use explicitly passed specDir, fallback to active editor detection
         const capturedSpecDir = options?.specDir || await getActiveSpecDir();
-        this.outputChannel.appendLine(`[ACP] executeInTerminal capturedSpecDir=${capturedSpecDir}, options.specDir=${options?.specDir}`);
+        const stepName = (options?.step || (capturedSpecDir ? readSpecContextSync(capturedSpecDir)?.currentStep : undefined) || 'specify') as StepName;
+        this.outputChannel.appendLine(`[ACP] executeInTerminal capturedSpecDir=${capturedSpecDir}, stepName=${stepName}, options.specDir=${options?.specDir}`);
 
         const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
         if (!cwd) {
@@ -175,17 +176,14 @@ export class AcpProvider implements IAIProvider {
 
         const input = Writable.toWeb(agentProcess.stdin!);
         const output = Readable.toWeb(agentProcess.stdout!);
-        const stream = acp.ndJsonStream(input, output);
+        const stream = acp.ndJsonStream(input as any, output as any);
 
         const onCompletion = async () => {
-            this.outputChannel.appendLine('[ACP] onCompletion called.');
+            this.outputChannel.appendLine(`[ACP] onCompletion called for captured step: ${stepName}`);
             writeEmitter.fire('\r\n[ACP] Executing completion logic...\r\n');
             try {
                 if (capturedSpecDir) {
-                    const ctx = readSpecContextSync(capturedSpecDir);
-                    if (ctx && ctx.currentStep) {
-                        await completeStep(capturedSpecDir, ctx.currentStep as StepName, 'ai');
-                    }
+                    await completeStep(capturedSpecDir, stepName, 'ai');
                 } else {
                     this.outputChannel.appendLine('[ACP] Warning: No capturedSpecDir found to complete.');
                 }
@@ -213,10 +211,7 @@ export class AcpProvider implements IAIProvider {
                 // Fast fail spec step on handshake timeout
                 try {
                     if (capturedSpecDir) {
-                        const ctx = readSpecContextSync(capturedSpecDir);
-                        if (ctx && ctx.currentStep) {
-                            await completeStep(capturedSpecDir, ctx.currentStep as StepName, 'ai');
-                        }
+                        await completeStep(capturedSpecDir, stepName, 'ai');
                     }
                 } catch (e) {
                     this.outputChannel.appendLine(`[ACP] Error sending failure completeStep: ${e}`);
@@ -327,10 +322,7 @@ export class AcpProvider implements IAIProvider {
             
             try {
                 if (capturedSpecDir) {
-                    const ctx = readSpecContextSync(capturedSpecDir);
-                    if (ctx && ctx.currentStep) {
-                        await completeStep(capturedSpecDir, ctx.currentStep as StepName, 'ai');
-                    }
+                    await completeStep(capturedSpecDir, stepName, 'ai');
                 }
             } catch (e) {}
         }

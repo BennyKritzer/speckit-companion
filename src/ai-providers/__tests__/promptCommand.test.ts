@@ -10,7 +10,7 @@ describe('buildPromptDispatchCommand', () => {
             shell: 'bash',
         });
 
-        expect(line).toBe('copilot --yolo -p "$(cat "/tmp/p.md")"');
+        expect(line).toBe('copilot --yolo -p "$(cat \'/tmp/p.md\')"');
     });
 
     it('produces Get-Content substitution for powershell shell', () => {
@@ -34,7 +34,7 @@ describe('buildPromptDispatchCommand', () => {
             shell: 'unknown',
         });
 
-        expect(line).toBe('copilot --yolo -p "$(cat "/tmp/p.md")"');
+        expect(line).toBe('copilot --yolo -p "$(cat \'/tmp/p.md\')"');
     });
 
     describe('cmd shell', () => {

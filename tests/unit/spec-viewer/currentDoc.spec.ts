@@ -3,22 +3,23 @@
  * Verifies that navState.currentDoc values are mapped to the correct CoreDocumentType.
  */
 
-import { navState } from "../../../webview/src/spec-viewer/signals";
+import { specViewerStore } from "../../../webview/src/spec-viewer/store/store";
+import { navStateAtom } from "../../../webview/src/spec-viewer/store/atoms";
 
 // Must import after mocking signals (or import the function after setting navState)
 import { currentDoc } from "../../../webview/src/spec-viewer/editor/currentDoc";
 
 function setCurrentDoc(value: string | undefined): void {
   if (value === undefined) {
-    navState.value = null;
+    specViewerStore.set(navStateAtom, null);
   } else {
-    navState.value = { currentDoc: value } as any;
+    specViewerStore.set(navStateAtom, { currentDoc: value } as any);
   }
 }
 
 describe("currentDoc()", () => {
   afterEach(() => {
-    navState.value = null;
+    specViewerStore.set(navStateAtom, null);
   });
 
   it('returns "spec" when navState.currentDoc is "spec"', () => {
