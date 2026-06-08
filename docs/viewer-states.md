@@ -89,7 +89,8 @@
 > Completed` does not (the spec is already terminal-completed).
 >
 > **Footer left/right split**: The renderer routes catalog actions
-> into two zones:
+> into two zones, while the navigation bar keeps only the activity
+> toggle:
 > - **Left** (`actions-left`): `Regenerate` only — outlined "redo
 >   this step" tool sits alone so the eye finds it without
 >   competing with lifecycle controls.
@@ -208,6 +209,9 @@ flowchart TD
 ---
 
 ## Footer Buttons
+
+The navigation bar does not duplicate any of the actions listed below;
+it keeps only the activity view toggle.
 
 ```mermaid
 flowchart LR
