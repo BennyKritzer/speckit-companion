@@ -35,6 +35,14 @@
 >   inferred-completed. **Null when `status ∈ {completed, archived}`.**
 > - Highlight = every step with `completedAt` set or inferred-completed,
 >   regardless of active tab.
+
+**Optional badge rules**:
+- Optional workflow tabs show a compact `OO` badge only while the step has
+    not been run yet.
+- The badge disappears as soon as the optional step has started,
+    completed, or been skipped, returning the tab to the normal step
+    presentation.
+- Required steps never render the compact badge.
 >
 > **Reconciliation**: When the extension reads `.spec-context.json` and
 > finds incomplete data (e.g., `currentStep` past steps with no history
@@ -232,6 +240,8 @@ The "Next Step" button shows only when:
 - Status is `active`
 - The next core document doesn't exist yet
 - Label shows the next step name: "Plan", "Tasks", or "Implement"
+
+When the current workflow step is optional, the footer also shows a step-scoped **Skip** action; after you skip it, the button toggles to **Unskip** until you move forward or finish the step.
 
 The source-tab **Refine** button (`✨ Refine (N)`) still appears dynamically
 when pending inline comments are collected. Each comment is persisted to

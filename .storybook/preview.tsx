@@ -1,5 +1,4 @@
 import type { Preview } from '@storybook/preact';
-import { navState } from '../webview/src/spec-viewer/signals';
 
 // Import all spec-viewer CSS
 import '../webview/styles/spec-viewer/index.css';
@@ -38,9 +37,6 @@ const vscodeDarkTheme: Record<string, string> = {
 const preview: Preview = {
     decorators: [
         (Story) => {
-            // Reset navState signal before each story
-            navState.value = null;
-
             // Apply VS Code theme variables
             const style = Object.entries(vscodeDarkTheme)
                 .map(([k, v]) => `${k}: ${v}`)

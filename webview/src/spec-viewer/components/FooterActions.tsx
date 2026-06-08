@@ -259,25 +259,25 @@ export function FooterActions({ initialSpecStatus }: FooterActionsProps) {
                         title={completeConfirm.armed ? 'Click again to confirm complete' : 'Mark this spec complete'}
                         onClick={completeConfirm.onClick}
                     />
-                ) : !isRunning ? (
-                    <>
+                ) : !isRunning ? ([
+                    <Button
+                        key="regenerate"
+                        label="Regenerate"
+                        variant="secondary"
+                        title="Regenerate the current step from scratch"
+                        disabled={regenerateToastActive}
+                        onClick={onRegenerateClick}
+                    />,
+                    ns.footerState?.showApproveButton && (
                         <Button
-                            label="Regenerate"
-                            variant="secondary"
-                            title="Regenerate the current step from scratch"
-                            disabled={regenerateToastActive}
-                            onClick={onRegenerateClick}
+                            key="approve"
+                            label={ns.footerState.approveText}
+                            variant="primary"
+                            title="Approve and advance to the next step"
+                            onClick={send({ type: 'approve' })}
                         />
-                        {ns.footerState?.showApproveButton && (
-                            <Button
-                                label={ns.footerState.approveText}
-                                variant="primary"
-                                title="Approve and advance to the next step"
-                                onClick={send({ type: 'approve' })}
-                            />
-                        )}
-                    </>
-                ) : null}
+                    ),
+                ]) : null}
             </div>
             {regenerateToastActive && (
                 <UndoToast

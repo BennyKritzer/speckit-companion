@@ -256,16 +256,21 @@
 
 /* Optional step badge styling */
 .optional-badge {
-    font-size: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    font-size: 8px;
     font-weight: 500;
+    line-height: 1;
     text-transform: uppercase;
-    padding: 1px 4px;
-    border-radius: 4px;
+    padding: 0 4px;
+    border-radius: 999px;
     background: var(--bg-hover, rgba(255, 255, 255, 0.1));
     color: var(--text-secondary);
     border: 1px solid var(--border);
     margin-left: 4px;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     opacity: 0.8;
 }
 
