@@ -26,6 +26,15 @@ const staleMap = (phase: string) => ({
     [phase]: { isStale: true, staleReason: 'Outdated', newerUpstream: 'spec' },
 });
 
+const OPTIONAL_STARTED_12S_AGO = new Date(Date.now() - 12_000).toISOString();
+
+const optionalBase = {
+    ...base,
+    doc: { ...mockDoc('clarify', false, 'Clarify'), optional: true },
+    index: 1,
+    totalSteps: 3,
+};
+
 // ── Canonical states ─────────────────────────────────────
 
 export const Current: Story = {
@@ -46,6 +55,40 @@ export const Locked: Story = {
         doc: mockDoc('plan', false, 'Plan'),
         index: 1,
         runningStepIndex: 0,
+    },
+};
+
+// ── Optional badge states ────────────────────────────────
+
+export const OptionalUnrun: Story = {
+    args: {
+        ...optionalBase,
+        currentDoc: 'spec',
+    },
+};
+
+export const OptionalComparison: Story = {
+    args: {
+        ...base,
+        doc: mockDoc('plan', true, 'Plan'),
+        currentDoc: 'spec',
+    },
+};
+
+export const OptionalRunning: Story = {
+    args: {
+        ...optionalBase,
+        currentDoc: 'spec',
+        activeStep: 'clarify',
+        stepHistory: { clarify: { startedAt: OPTIONAL_STARTED_12S_AGO } },
+    },
+};
+
+export const OptionalSkipped: Story = {
+    args: {
+        ...optionalBase,
+        currentDoc: 'spec',
+        stepHistory: { clarify: { startedAt: OPTIONAL_STARTED_12S_AGO, completedAt: null, skippedAt: OPTIONAL_STARTED_12S_AGO } },
     },
 };
 

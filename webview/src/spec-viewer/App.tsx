@@ -57,30 +57,28 @@ export function App({ specStatus }: AppProps) {
         document.body.dataset.hasSpecContext = has ? 'true' : 'false';
     }, [ns?.specContextName, ns?.badgeText]);
 
-    return (
-        <>
-            <nav class="compact-nav">
-                <NavigationBar />
-            </nav>
-            <StaleBanner />
-            <SpecHeader />
-            <main class="content-area" id="content-area">
-                <div
-                    id="markdown-content"
-                    ref={contentRef}
-                    dangerouslySetInnerHTML={{ __html: html }}
-                    hidden={showActivity}
-                />
-                {hasMountedActivity && (
-                    <div hidden={!showActivity}>
-                        <ActivityErrorBoundary>
-                            <ActivityPanel />
-                        </ActivityErrorBoundary>
-                    </div>
-                )}
-                <aside class="spec-toc" id="spec-toc" aria-label="Table of contents" hidden={showActivity}></aside>
-            </main>
-            <FooterActions initialSpecStatus={specStatus} />
-        </>
-    );
+    return [
+        <nav class="compact-nav" key="nav">
+            <NavigationBar />
+        </nav>,
+        <StaleBanner key="stale" />,
+        <SpecHeader key="header" />,
+        <main class="content-area" id="content-area" key="main">
+            <div
+                id="markdown-content"
+                ref={contentRef}
+                dangerouslySetInnerHTML={{ __html: html }}
+                hidden={showActivity}
+            />
+            {hasMountedActivity && (
+                <div hidden={!showActivity}>
+                    <ActivityErrorBoundary>
+                        <ActivityPanel />
+                    </ActivityErrorBoundary>
+                </div>
+            )}
+            <aside class="spec-toc" id="spec-toc" aria-label="Table of contents" hidden={showActivity}></aside>
+        </main>,
+        <FooterActions initialSpecStatus={specStatus} key="footer" />,
+    ];
 }

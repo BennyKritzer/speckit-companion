@@ -40,7 +40,7 @@ export const DEFAULT_WORKFLOW: WorkflowConfig = {
         { name: WorkflowSteps.SPECIFY, label: 'Specification', command: 'speckit.specify', file: 'spec.md' },
         { name: WorkflowSteps.CLARIFY, label: 'Clarify', command: 'speckit.clarify', actionOnly: true, optional: true },
         { name: WorkflowSteps.PLAN, label: 'Plan', command: 'speckit.plan', file: 'plan.md', subFiles: ['research.md', 'data-model.md', 'quickstart.md'], subDir: 'contracts', includeRelatedDocs: true },
-        { name: WorkflowSteps.CHECKLIST, label: 'Checklist', command: 'speckit.checklist', subDir: 'checklists', includeRelatedDocs: true, optional: true },
+        { name: WorkflowSteps.CHECKLIST, label: 'Checklist', command: 'speckit.checklist', file: 'checklists/checklist.md', subDir: 'checklists', includeRelatedDocs: true, optional: true },
         { name: WorkflowSteps.TASKS, label: 'Tasks', command: 'speckit.tasks', file: 'tasks.md' },
         { name: WorkflowSteps.ANALYZE, label: 'Analyze', command: 'speckit.analyze', actionOnly: true, optional: true },
         { name: WorkflowSteps.IMPLEMENT, label: 'Implement', command: 'speckit.implement', actionOnly: true },

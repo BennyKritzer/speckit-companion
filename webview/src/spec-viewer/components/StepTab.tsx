@@ -101,6 +101,8 @@ export function StepTab(props: StepTabProps) {
         ? `${baseTooltip} (disabled while ${activeStep} is running)`
         : baseTooltip;
 
+    const showOptionalBadge = !!doc.optional && !runEntry;
+
     // Only show the elapsed ticker for a live dispatch run — not for the
     // last-step `inProgress` case, which is driven by task-completion percent.
     // Use the mapped stepName (matches activeStep / stepHistory keys),
@@ -123,7 +125,7 @@ export function StepTab(props: StepTabProps) {
         >
             <span class="step-status">{statusIcon}</span>
             <span class="step-label">{doc.label}</span>
-            {doc.optional && <span class="optional-badge">optional</span>}
+            {showOptionalBadge && <span class="optional-badge" aria-hidden="true">OO</span>}
             {vsSubstep && <span class="step-tab__substep">{vsSubstep}</span>}
             {runningStartedAt && <ElapsedTimer />}
             {isStale && <span class="stale-badge">!</span>}

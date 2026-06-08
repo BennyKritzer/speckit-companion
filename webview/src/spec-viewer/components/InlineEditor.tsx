@@ -43,10 +43,10 @@ export function InlineEditor(props: InlineEditorProps) {
             <div class="editor-header">
                 {mode === 'row' ? (
                     scenarioContent && (
-                        <>
+                        <span class="editor-context-group">
                             <span class="editor-context-label">Scenario {lineNum}:</span>
                             <span class="editor-context-text">{scenarioContent}</span>
-                        </>
+                        </span>
                     )
                 ) : (
                     <span class="editor-header-target">Commenting on line {lineNum}</span>

@@ -44,6 +44,10 @@ function isTerminal(status: string | undefined): boolean {
     return status === SpecStatuses.COMPLETED || status === SpecStatuses.ARCHIVED;
 }
 
+function getStepConfig(step: StepName, workflowSteps?: WorkflowStepConfig[]): WorkflowStepConfig | undefined {
+    return workflowSteps?.find(s => s.name === step);
+}
+
 /**
  * True once the spec has reached a closure-eligible stage. Tightened
  * to just `implemented` + `completed`: while the AI is still creating
@@ -204,6 +208,32 @@ export const FOOTER_ACTIONS: FooterAction[] = [
             if (isTerminal(ctx.status)) return false;
             const entry = stepHistory[step];
             return !!entry?.startedAt;
+        },
+    },
+    {
+        id: FooterActionIds.SKIP,
+        label: 'Skip',
+        scope: 'step',
+        tooltip: 'Skip this optional step',
+        visibleWhen: (ctx, step, stepHistory, workflowSteps) => {
+            if (isTerminal(ctx.status)) return false;
+            if (step !== ctx.currentStep) return false;
+            const entry = stepHistory[step];
+            if (!entry?.startedAt || entry.completedAt || entry.skippedAt) return false;
+            return !!getStepConfig(step, workflowSteps)?.optional;
+        },
+    },
+    {
+        id: FooterActionIds.UNSKIP,
+        label: 'Unskip',
+        scope: 'step',
+        tooltip: 'Restore this skipped step',
+        visibleWhen: (ctx, step, stepHistory, workflowSteps) => {
+            if (isTerminal(ctx.status)) return false;
+            if (step !== ctx.currentStep) return false;
+            const entry = stepHistory[step];
+            if (!entry?.startedAt || !entry.skippedAt) return false;
+            return !!getStepConfig(step, workflowSteps)?.optional;
         },
     },
     {

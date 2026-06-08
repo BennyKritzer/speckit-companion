@@ -8,7 +8,7 @@ import {
     IDLE_GAP_CAP_MS,
 } from '../../relativeTime';
 
-const STEP_ORDER = ['specify', 'clarify', 'plan', 'tasks', 'analyze', 'implement', 'checklist', 'git.validate'];
+const STEP_ORDER = ['specify', 'clarify', 'plan', 'checklist', 'tasks', 'analyze', 'implement', 'git.validate'];
 const KNOWN_ACTORS = new Set(['extension', 'cli', 'sdd', 'ai', 'user']);
 
 interface StepGroup {
@@ -23,12 +23,15 @@ export interface PhasesCardProps {
     state: ViewerState;
 }
 
-function buildGroups(stepHistory: ViewerState['stepHistory'], history: HistoryEntry[]): StepGroup[] {
+function buildGroups(state: ViewerState): StepGroup[] {
+    const stepHistory = state.stepHistory ?? {};
+    const history = state.history ?? [];
     const historyIndex = buildHistoryIndex(history);
     const groups: StepGroup[] = [];
     const seen = new Set<string>();
+    const stepOrder = Object.keys(state.steps ?? {});
 
-    for (const step of STEP_ORDER) {
+    for (const step of (stepOrder.length > 0 ? stepOrder : STEP_ORDER)) {
         const entry = stepHistory[step];
         if (!entry?.startedAt) continue;
         seen.add(step);
@@ -91,7 +94,7 @@ function activityPoints(group: StepGroup): string[] {
 }
 
 export function PhasesCard({ state }: PhasesCardProps) {
-    const groups = buildGroups(state.stepHistory ?? {}, state.history ?? []);
+    const groups = buildGroups(state);
     if (groups.length === 0) return null;
 
     // Overall: the whole-spec start (absolute), end (absolute or in-flight), and
@@ -146,7 +149,8 @@ export function PhasesCard({ state }: PhasesCardProps) {
                 </div>
                 <div class="phases-track">
                     {groups.map(group => {
-                        const inFlight = group.completedAt === null && !group.skippedAt;
+                        const stepState = state.steps?.[group.step];
+                        const inFlight = stepState !== 'completed' && group.completedAt === null && !group.skippedAt;
                         // Elapsed = active time (idle gaps capped), not wall-clock.
                         const duration = group.skippedAt ? 'skipped' : formatElapsed(activeDurationMs(activityPoints(group)));
                         const showStepDate =
