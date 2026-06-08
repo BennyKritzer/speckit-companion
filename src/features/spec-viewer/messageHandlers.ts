@@ -503,7 +503,8 @@ async function executeStepInTerminal(
     agent: step.agent,
     model: step.model,
     continue: step.continue,
-    specDir: specDirectory
+    specDir: specDirectory,
+    step: step.name
   };
   deps.outputChannel.appendLine(
     `[SpecViewer] Executing step "${label}": ${rawPrompt}`,

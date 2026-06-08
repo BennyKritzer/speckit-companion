@@ -5,8 +5,13 @@ import { ElapsedTimer } from './ElapsedTimer';
 
 const DOC_TO_STEP: Record<string, string> = {
     spec: 'specify',
+    clarify: 'clarify',
     plan: 'plan',
+    checklist: 'checklist',
     tasks: 'tasks',
+    analyze: 'analyze',
+    implement: 'implement',
+    'git.validate': 'git.validate'
 };
 
 const STEP_TOOLTIPS: Record<string, string> = {
@@ -118,6 +123,7 @@ export function StepTab(props: StepTabProps) {
         >
             <span class="step-status">{statusIcon}</span>
             <span class="step-label">{doc.label}</span>
+            {doc.optional && <span class="optional-badge">optional</span>}
             {vsSubstep && <span class="step-tab__substep">{vsSubstep}</span>}
             {runningStartedAt && <ElapsedTimer />}
             {isStale && <span class="stale-badge">!</span>}

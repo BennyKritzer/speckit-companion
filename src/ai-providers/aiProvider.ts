@@ -152,6 +152,7 @@ export interface AIOptions {
     continue?: boolean;
     autoExecute?: boolean;
     specDir?: string;
+    step?: string;
 }
 
 /**

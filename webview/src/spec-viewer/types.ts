@@ -27,6 +27,7 @@ export interface SpecDocument {
     exists: boolean;
     isCore: boolean;
     actionOnly?: boolean;
+    optional?: boolean;
     category?: 'core' | 'related';
     parentStep?: string;
 }

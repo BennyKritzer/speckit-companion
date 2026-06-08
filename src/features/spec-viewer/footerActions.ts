@@ -118,6 +118,11 @@ function shouldShowApprove(
         if (!entry.completedAt) return true;
         return idx < STEP_NAMES.length - 1;
     }
+
+    // The final step closure is owned by `Mark Completed` (gated on
+    // `isSpecDone(ctx)`). Approve here would surface a duplicate
+    // "Complete" button before status actually flips.
+    if (idx === stepList.length - 1) return false;
     
     // Any later step started → workflow has moved past this tab.
     for (let i = idx + 1; i < stepList.length; i++) {

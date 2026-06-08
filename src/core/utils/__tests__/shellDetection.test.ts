@@ -76,7 +76,7 @@ describe('detectShell', () => {
 
 describe('formatPromptFileSubstitution', () => {
     it('produces $(cat "...") for bash', () => {
-        expect(formatPromptFileSubstitution('bash', '/tmp/p.md')).toBe('$(cat "/tmp/p.md")');
+        expect(formatPromptFileSubstitution('bash', '/tmp/p.md')).toBe('$(cat \'/tmp/p.md\')');
     });
 
     it('produces single-quoted Get-Content -Raw for powershell', () => {
@@ -89,6 +89,6 @@ describe('formatPromptFileSubstitution', () => {
     });
 
     it('falls back to bash form for unknown', () => {
-        expect(formatPromptFileSubstitution('unknown', '/tmp/p.md')).toBe('$(cat "/tmp/p.md")');
+        expect(formatPromptFileSubstitution('unknown', '/tmp/p.md')).toBe('$(cat \'/tmp/p.md\')');
     });
 });

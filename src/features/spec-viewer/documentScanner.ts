@@ -138,6 +138,7 @@ export async function scanDocuments(
                 exists,
                 isCore: true,
                 actionOnly: step.actionOnly,
+                optional: step.optional,
                 category: 'core'
             });
 

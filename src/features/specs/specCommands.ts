@@ -638,14 +638,15 @@ async function executeWorkflowStep(
     let aiOptions: AIOptions | undefined = stepConfig ? {
         agent: stepConfig.agent,
         model: stepConfig.model,
-        continue: stepConfig.continue
+        continue: stepConfig.continue,
+        step: stepConfig.name || step
     } : undefined;
 
     if (aiOptions) {
         aiOptions.specDir = targetDir;
         outputChannel.appendLine(`[SpecKit] Sending to AI Provider with options: ${JSON.stringify(aiOptions)}`);
     } else {
-        aiOptions = { specDir: targetDir };
+        aiOptions = { specDir: targetDir, step: step };
     }
 
     const provider = getAIProvider();

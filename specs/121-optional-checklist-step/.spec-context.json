@@ -1,10 +1,10 @@
 {
   "workflow": "speckit",
-  "specName": "Jotai Webview State",
-  "branch": "120-jotai-webview-state",
-  "selectedAt": "2026-06-01T16:17:50.527Z",
+  "specName": "Optional Checklist Step After Plan",
+  "branch": "121-optional-checklist-step",
+  "selectedAt": "2026-06-08T12:44:29.283Z",
   "currentStep": "git.validate",
-  "status": "completed",
+  "status": "finalized",
   "history": [
     {
       "step": "specify",
@@ -15,14 +15,14 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T16:17:50.527Z"
+      "at": "2026-06-07T16:55:42.906Z"
     },
     {
       "step": "specify",
       "substep": null,
       "kind": "complete",
-      "by": "ai",
-      "at": "2026-06-01T16:18:53Z"
+      "by": "extension",
+      "at": "2026-06-07T17:05:57.229Z"
     },
     {
       "step": "clarify",
@@ -33,14 +33,32 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T16:32:20.094Z"
+      "at": "2026-06-07T17:05:57.231Z"
     },
     {
       "step": "clarify",
       "substep": null,
       "kind": "complete",
       "by": "ai",
-      "at": "2026-06-01T16:32:52Z"
+      "at": "2026-06-07T17:22:08Z"
+    },
+    {
+      "step": "clarify",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": null,
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-06-07T21:45:14.117Z"
+    },
+    {
+      "step": "clarify",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-07T21:53:07.538Z"
     },
     {
       "step": "plan",
@@ -51,14 +69,32 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T16:34:39.840Z"
+      "at": "2026-06-07T21:53:07.539Z"
     },
     {
       "step": "plan",
       "substep": null,
       "kind": "complete",
-      "by": "ai",
-      "at": "2026-06-01T16:35:27Z"
+      "by": "extension",
+      "at": "2026-06-08T12:44:29.284Z"
+    },
+    {
+      "step": "checklist",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": null,
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-06-08T12:44:29.288Z"
+    },
+    {
+      "step": "checklist",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-08T12:48:37.537Z"
     },
     {
       "step": "tasks",
@@ -69,14 +105,14 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T16:39:16.814Z"
+      "at": "2026-06-08T12:50:18.234Z"
     },
     {
       "step": "tasks",
       "substep": null,
       "kind": "complete",
-      "by": "ai",
-      "at": "2026-06-01T16:43:14Z"
+      "by": "extension",
+      "at": "2026-06-08T12:51:42.724Z"
     },
     {
       "step": "analyze",
@@ -87,14 +123,14 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T16:45:31.342Z"
+      "at": "2026-06-08T12:51:42.725Z"
     },
     {
       "step": "analyze",
       "substep": null,
       "kind": "complete",
       "by": "extension",
-      "at": "2026-06-01T16:46:48.641Z"
+      "at": "2026-06-08T12:53:30.721Z"
     },
     {
       "step": "implement",
@@ -105,17 +141,35 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T16:49:21.357Z"
+      "at": "2026-06-08T12:53:30.722Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-06-08T12:53:30.721Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "kind": "start",
+      "from": {
+        "step": "analyze",
+        "substep": null
+      },
+      "by": "extension",
+      "at": "2026-06-08T12:53:30.722Z"
     },
     {
       "step": "implement",
       "substep": null,
       "kind": "complete",
       "by": "extension",
-      "at": "2026-06-01T17:29:41.625Z"
+      "at": "2026-06-08T12:57:59.972Z"
     },
     {
-      "step": "checklist",
+      "step": "git.validate",
       "substep": null,
       "kind": "start",
       "from": {
@@ -123,39 +177,14 @@
         "substep": null
       },
       "by": "extension",
-      "at": "2026-06-01T17:29:41.626Z"
-    },
-    {
-      "step": "checklist",
-      "substep": null,
-      "kind": "complete",
-      "by": "extension",
-      "at": "2026-06-01T17:35:21.894Z"
-    },
-    {
-      "step": "git.validate",
-      "substep": null,
-      "kind": "start",
-      "from": {
-        "step": "checklist",
-        "substep": null
-      },
-      "by": "extension",
-      "at": "2026-06-01T17:35:44.234Z"
+      "at": "2026-06-08T13:12:39.434Z"
     },
     {
       "step": "git.validate",
       "substep": null,
       "kind": "complete",
       "by": "extension",
-      "at": "2026-06-01T17:36:48.887Z"
-    },
-    {
-      "step": "git.validate",
-      "substep": null,
-      "kind": "complete",
-      "by": "extension",
-      "at": "2026-06-08T13:17:04.665Z"
+      "at": "2026-06-08T13:12:55.654Z"
     }
   ]
 }

@@ -106,6 +106,9 @@ export interface SpecDocument {
     /** Whether this is an action-only step (e.g. no generated file) */
     actionOnly?: boolean;
 
+    /** Whether this is an optional workflow step */
+    optional?: boolean;
+
     /** Category for navigation grouping */
     category: DocumentCategory;
 

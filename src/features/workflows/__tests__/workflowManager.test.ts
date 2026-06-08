@@ -198,10 +198,10 @@ describe('getWorkflow', () => {
             'specify',
             'clarify',
             'plan',
+            'checklist',
             'tasks',
             'analyze',
             'implement',
-            'checklist',
             'git.validate'
         ]);
     });

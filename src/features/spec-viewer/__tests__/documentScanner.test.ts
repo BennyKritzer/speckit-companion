@@ -172,3 +172,25 @@ describe('scanDocuments - parentStep assignment for orphan related docs', () => 
         expect(subDoc!.parentStep).toBe('specify');
     });
 });
+
+describe('scanDocuments - optional parameters', () => {
+    it('should correctly propagate optional attribute from step config to SpecDocument', async () => {
+        const steps: WorkflowStepConfig[] = [
+            { name: 'specify', label: 'Specify', command: 'speckit.specify', file: 'spec.md' },
+            { name: 'clarify', label: 'Clarify', command: 'speckit.clarify', actionOnly: true, optional: true },
+        ];
+
+        mockFileExists(`${SPEC_DIR}/spec.md`);
+
+        const docs = await scanDocuments(SPEC_DIR, outputChannel, steps);
+
+        const specifyDoc = docs.find(d => d.type === 'specify');
+        expect(specifyDoc).toBeDefined();
+        expect(specifyDoc!.optional).toBeUndefined();
+
+        const clarifyDoc = docs.find(d => d.type === 'clarify');
+        expect(clarifyDoc).toBeDefined();
+        expect(clarifyDoc!.optional).toBe(true);
+        expect(clarifyDoc!.actionOnly).toBe(true);
+    });
+});
